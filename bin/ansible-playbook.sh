@@ -11,5 +11,6 @@ docker run -it \
   -v ${SSH_KEY_DIR}/${SSH_PRIVATE_KEY}:/${SSH_PRIVATE_KEY}  \
   -e SSH_PRIVATE_KEY=${SSH_PRIVATE_KEY} \
   -e REMOTE_USER=${REMOTE_USER} \
+  -e ANSIBLE_HOST_KEY_CHECKING=False \
   --rm ansible:latest \
-  ansible-playbook ${@} #-i inventory/tlipatov-dev site.yml
+  ansible-playbook ${@}
