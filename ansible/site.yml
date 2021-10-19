@@ -1,0 +1,6 @@
+- hosts: dev
+  gather_facts: yes
+  gather_timeout: 120
+
+  tasks: []
+  roles: []
