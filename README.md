@@ -1,2 +1,2 @@
-# qimana-ansible
-qimana ansible scripts
+# qimata-ansible
+qimata ansible scripts
