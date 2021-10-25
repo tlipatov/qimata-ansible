@@ -1,0 +1,88 @@
+---
+
+- name: "TLS: create /etc/ldap/ssl"
+  file:
+    path: "/etc/ldap/tls"
+    state: directory
+    owner: "openldap"
+    group: "openldap"
+    mode: "0770"
+  tags: openldap, tls
+
+- block:
+  - name: "TLS: VAR CA cert file"
+    copy:
+      dest: "{{openldap_tls_ca_cert_dst}}"
+      owner: "openldap"
+      group: "openldap"
+      mode: "0600"
+      content: |
+        {{openldap_tls_ca_cert_var | b64decode}}
+    tags: openldap, tls
+
+  - name: "TLS: VAR Cert file"
+    copy:
+      dest: "{{openldap_tls_crt_dst}}"
+      owner: "openldap"
+      group: "openldap"
+      mode: "0600"
+      content: |
+        {{openldap_tls_crt_var | b64decode}}
+    tags: openldap, tls
+
+  - name: "TLS: VAR Key file"
+    copy:
+      dest: "{{openldap_tls_key_dst}}"
+      owner: "openldap"
+      group: "openldap"
+      mode: "0600"
+      content: |
+        {{openldap_tls_key_var | b64decode}}
+  when: (openldap_tls_crt_var or openldap_tls_key_var or openldap_tls_ca_cert_var) and not 
+        (openldap_tls_crt_file or openldap_tls_key_file or openldap_tls_ca_cert_file)
+  tags: openldap, tls
+
+- block:
+  - name: "TLS: Copy CA cert file"
+    copy:
+      src: "{{ openldap_tls_ca_cert_file }}"
+      dest: "{{openldap_tls_ca_cert_dst}}"
+      owner: "openldap"
+      group: "openldap"
+      mode: "0600"
+    tags: openldap, tls
+
+  - name: "TLS: Copy Cert file"
+    copy:
+      src: "{{ openldap_tls_crt_file }}"
+      dest: "{{openldap_tls_crt_dst}}"
+      owner: "openldap"
+      group: "openldap"
+      mode: "0600"
+    tags: openldap, tls
+
+  - name: "TLS: Copy Key file"
+    copy:
+      src: "{{ openldap_tls_key_file }}"
+      dest: "{{openldap_tls_key_dst}}"
+      owner: "openldap"
+      group: "openldap"
+      mode: "0600"
+    tags: openldap, tls
+
+  when: (openldap_tls_crt_file or openldap_tls_key_file or openldap_tls_ca_cert_file) and not 
+        (openldap_tls_crt_var or openldap_tls_key_var or openldap_tls_ca_cert_var)
+  tags: openldap, tls
+
+#Apply TLS configuration to server
+- name: "TLS: Apply configuration to server"
+  community.general.ldap_attrs:
+    dn: cn=config
+    attributes:
+      olcTLSCACertificateFile: "{{openldap_tls_ca_cert_dst}}"
+      olcTLSCertificateFile: "{{openldap_tls_crt_dst}}"
+      olcTLSCertificateKeyFile: "{{openldap_tls_key_dst}}"
+    state: exact
+  tags: openldap, tls
+
+# Test certificate: openssl s_client -connect localhost:636 -showcerts| head

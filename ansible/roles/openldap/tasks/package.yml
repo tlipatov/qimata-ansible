@@ -1,0 +1,56 @@
+---
+# Run debconf to bootstrap the 1st database
+# We use ldif to configure everything else
+# `debconf-show slapd` to see configuration on server
+- name: "Package debconf slapd package configuration"
+  debconf:
+    name: slapd
+    question: "{{ item['question'] }}"
+    value: "{{ item['value'] }}"
+    vtype: "{{ item['vtype'] }}"
+  become: true
+  changed_when: false
+  no_log: true
+  tags: openldap, package
+  loop:
+    - question: slapd/internal/generated_adminpw
+      value: "{{ openldap_admin_password }}"
+      vtype: password
+    - question: slapd/password2
+      value: "{{ openldap_admin_password }}"
+      vtype: password
+    - question: slapd/internal/adminpw
+      value: "{{ openldap_admin_password }}"
+      vtype: password
+    - question: slapd/password1
+      value: "{{ openldap_admin_password }}"
+      vtype: password
+    - question: slapd/domain
+      value: "{{ openldap_domain_name }}"
+      vtype: string
+    - question: shared/organization
+      value: "{{ openldap_org }}"
+      vtype: string
+    - question: slapd/backend
+      value: "{{ openldap_db_engine }}"
+      vtype: string
+
+# Install the packages
+- name: "Package: install packages"
+  apt:
+    name: "{{ openldap_packages }}"
+    state: present
+  become: true
+  register: result
+  until: result is successful
+  tags: openldap, package
+
+- name: "Base: create ldif template dirs"
+  file:
+    path: "{{item}}"
+    owner: openldap
+    group: openldap
+    mode: 0700 
+    state: directory
+  with_items:
+    - /etc/ldap/ldif-templates

@@ -1,0 +1,17 @@
+---
+
+dev:
+  children:
+    ldap:
+
+ldap:
+  children:
+    ldap_producers:
+    ldap_consumers:
+
+ldap_producers:
+  hosts:
+    ldap-01.dev.qimata
+ldap_consumers:
+  hosts:
+    ldap-02.dev.qimata

@@ -1,0 +1,26 @@
+---
+
+# Install the packages
+- name: "Pre: ansible runtime install ansible runtime  packages"
+  apt:
+    name: "{{ openldap_ansible_runtime_packages }}"
+    state: present
+  become: true
+  register: result
+  until: result is successful
+  tags: openldap, package
+
+- name: "Package: Check if slapd is installed"
+  package_facts:
+    manager: "apt"
+  tags: openldap, pre
+
+# When TLS is enabled, test that we are not using certs from VARS and Files 
+- name: "TLS: Test if we accidentally mixed TLS vars and Files"
+  assert: 
+    that:
+      not ((openldap_tls_crt_var or openldap_tls_key_var or openldap_tls_ca_cert_var) and
+      (openldap_tls_crt_file or openldap_tls_key_file or openldap_tls_ca_cert_file))
+    fail_msg: "Check your configuration: cannot TLS VARs and Files"
+  when: openldap_tls|bool
+  tags: openldap, pre

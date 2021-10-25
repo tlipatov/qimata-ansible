@@ -1,5 +1,0 @@
-[dev:children]
-ldap
-
-[ldap]
-ldap-01.dev.qimata

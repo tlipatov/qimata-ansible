@@ -1,0 +1,70 @@
+---
+# Bases
+# A list of maps representing the domains hosted by LDAP
+# At least one domain is required
+#
+# Format:
+# openldap_bases:
+#   - database: "1"           "Database ID" 
+#     org: "qimata"           "This is the Domain component domain name"
+#     tld: "com"              "This is the Domain component tld"
+#     bind_user: admin        "Domain bind user"
+#     bind_password: ld@p123! "Domain bind user password"
+#     create_admin: true      "Create admin user: true|false, default=true"
+#     admin_user_name: admin  "Admin user name, default=admin"
+#     admin_user_password: f00b@r "The admin user pass"
+openldap_bases: []
+
+# This is used to confiugre slapd when the package is instaled
+openldap_base: "{{ 'dc=' + openldap_bases[0].org + ',dc=' + openldap_bases[0].tld }}"
+openldap_org: "{{openldap_bases[0].org}}"
+openldap_tld: "{{openldap_bases[0].tld}}"
+openldap_domain_name: "{{ openldap_bases[0].org + '.' + openldap_bases[0].tld }}"
+
+# For initial package install
+openldap_admin_password: openldap_bases[0].bind_bind_password
+
+# Manage openldap config files
+openldap_config: true
+
+# Debain packages
+openldap_ansible_runtime_packages:
+  - python-apt
+  - python-ldap
+openldap_packages:
+  - slapd
+  - ldap-utils
+  - schema2ldif
+
+# DB Engine: MDB | HDB  Use HDB if you need syncrepl
+openldap_db_engine: HDB
+
+# Sync
+openldap_syncrepl_provider: false
+openldap_syncrepl_consumer: false
+
+# Enable TLS
+openldap_tls: false
+
+# Certs are passed either via variable or an existing path on the server.
+
+# Pass TLS certs as vars
+# TLC base64 encoded strings (can also be vault encrypted)
+openldap_tls_ca_cert_var: false
+openldap_tls_crt_var: false
+openldap_tls_key_var: false
+
+# Copy certs from file
+# Files are reletive to `files` folder 
+# Eg: 
+#  - files/
+#  - roles/openldap/files/
+openldap_tls_ca_cert_file: false
+openldap_tls_crt_file: false
+openldap_tls_key_file: false
+
+# TLS file server paths
+openldap_tls_dir: "/etc/ldap/tls"
+openldap_tls_ca_cert_dst: "{{openldap_tls_dir}}/ca.cert.pem"
+openldap_tls_crt_dst:  "{{openldap_tls_dir}}/tls.crt"
+openldap_tls_key_dst: "{{openldap_tls_dir}}/tls.key"

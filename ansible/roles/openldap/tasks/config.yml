@@ -1,0 +1,24 @@
+---
+
+- name: "Config: Defaults configuration /etc/default/slapd"
+  template:
+    src: default/slapd.j2
+    dest: /etc/default/slapd
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart slapd
+  tags: openldap, config
+
+- name: "Config: /etc/ldap/ldap.conf"
+  template:
+    src: etc/ldap/ldap.conf.j2
+    dest: /etc/ldap/ldap.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart slapd
+  tags: openldap, config
+

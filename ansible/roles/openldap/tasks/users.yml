@@ -1,0 +1,27 @@
+---
+
+- name: "User: create user on {{item.org}}.{{item.tld}}"
+  community.general.ldap_entry:
+    bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+    bind_pw: "{{item.bind_password}}"
+    dn: "uid={{this_item.FirstName}} {{this_item.LastName}},ou={{this_item.ou}},dc={{item.org}},dc={{item.tld}}"
+    objectClass: 
+      - inetOrgPerson
+      - posixAccount
+      - shadowAccount
+    attributes: "{{this_item.attributes}}"
+  loop: "{{ item.users | default([]) }}"
+  loop_control:
+    loop_var: this_item
+  tags: openldap, users
+
+- name: "User: Set password"
+  community.general.ldap_passwd:
+    bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+    bind_pw: "{{item.bind_password}}"
+    dn: "uid={{this_item.FirstName}} {{this_item.LastName}},ou={{this_item.ou}},dc={{item.org}},dc={{item.tld}}"
+    passwd: "{{this_item.password}}"
+  loop: "{{ item.users | default([]) }}"
+  loop_control:
+    loop_var: this_item
+  tags: openldap, users

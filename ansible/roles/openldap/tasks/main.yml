@@ -1,0 +1,33 @@
+---
+- include: pre.yml
+
+- include: package.yml
+  when: "'slapd' not in ansible_facts.packages"
+
+- include_tasks: tls.yml
+  when: openldap_tls|bool
+
+- include_tasks: config.yml
+  when: openldap_config|bool
+
+- include_tasks: bases.yml
+  loop: "{{openldap_bases}}"
+
+- include_tasks: syncrepl_provider.yml
+  when: openldap_syncrepl_provider|bool
+
+- include_tasks: syncrepl_provider_dbs.yml
+  loop: "{{openldap_bases}}"
+  when: openldap_syncrepl_provider|bool
+
+- include_tasks: syncrepl_consumer.yml
+  loop: "{{openldap_bases}}"
+  when: openldap_syncrepl_consumer|bool
+
+- include_tasks: org_units.yml
+  loop: "{{openldap_bases}}"
+  when: not openldap_syncrepl_consumer|bool
+
+- include_tasks: users.yml
+  loop: "{{openldap_bases}}"
+  when: not openldap_syncrepl_consumer|bool
