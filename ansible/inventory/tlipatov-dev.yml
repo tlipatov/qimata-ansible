@@ -1,0 +1,23 @@
+---
+
+dev:
+  children:
+    ldap:
+
+ldap:
+  children:
+    ldap_producers:
+    ldap_consumers:
+
+ldap_producers:
+  hosts:
+    ldap-01.dev.qimata
+    #74.101.208.68
+  vars:
+    openldap_sync_consumer: false
+
+ldap_consumers:
+  hosts:
+    #ldap-01.dev.qimata:
+  vars:
+    openldap_sync_consumer: true
