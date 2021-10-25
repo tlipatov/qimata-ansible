@@ -1,0 +1,21 @@
+---
+
+- name: "Syncprel Provider: create {{'/etc/ldap/ldif-templates/syncprov-olcDatabase={'+item.database+'}hdb.ldif'}}"
+  copy:
+    dest: "{{'/etc/ldap/ldif-templates/syncprov-olcDatabase={'+item.database+'}hdb.ldif'}}"
+    content: |
+      dn: olcOverlay={0}syncprov,olcDatabase={{ '{' }}{{item.database}}{{ '}' }}hdb,cn=config
+      changetype: add
+      objectClass: olcOverlayConfig
+      objectClass: olcConfig
+      objectClass: top
+      objectClass: olcSyncProvConfig
+      olcOverlay: {0}syncprov
+      olcSpCheckpoint: 100 10
+      olcSpSessionlog: 100
+  when: item.syncrepl|default('false')
+  register: syncprov_ldif
+
+- name: "Syncprel Provider: apply {{'/etc/ldap/ldif-templates/syncprov-olcDatabase={'+item.database+'}hdb.ldif'}}"
+  shell: "ldapmodify -Y EXTERNAL -H ldapi:/// -f {{'/etc/ldap/ldif-templates/syncprov-olcDatabase={'+item.database+'}hdb.ldif'}}"
+  when: syncprov_ldif.changed

@@ -44,3 +44,13 @@
   register: result
   until: result is successful
   tags: openldap, package
+
+- name: "Base: create ldif template dirs"
+  file:
+    path: "{{item}}"
+    owner: openldap
+    group: openldap
+    mode: 0700 
+    state: directory
+  with_items:
+    - /etc/ldap/ldif-templates

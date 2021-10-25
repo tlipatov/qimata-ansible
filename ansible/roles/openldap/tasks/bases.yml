@@ -1,14 +1,22 @@
 # Check if db ldif file exists
-- name: "Base: Check if base file exists {{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}mdb.ldif' }}"
+- name: "Base: Check if base file exists {{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}'+openldap_db_engine | lower+'.ldif' }}"
   stat:
-    path: "{{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}mdb.ldif' }}"
+    path: "{{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}'+openldap_db_engine | lower+'.ldif' }}"
   register: slapd_d_config
 
+- name: "Base: create data dir /var/lib/ldap/{{item.org}}.{{item.tld}}"
+  file:
+    path: /var/lib/ldap/{{item.org}}.{{item.tld}}
+    owner: openldap
+    group: openldap
+    mode: 0700 
+    state: directory
+
   # Create simple ldif file if it does not exist
-- name: "Base: Create {{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}mdb.ldif' }}"
+- name: "Base: Create {{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}'+openldap_db_engine | lower+'.ldif' }}"
   template:
     src: etc/ldap/slapd.d/database.ldif.j2
-    dest: "{{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}mdb.ldif' }}"
+    dest: "{{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}'+openldap_db_engine | lower+'.ldif' }}"
     owner: openldap
     group: openldap
     mode: 0644
@@ -18,7 +26,7 @@
   register: slapd_d_config_template
 
 # Restart slapd if we created a new ldif file
-- name: "Base: restart LDAP to load new base file"
+- name: "Base: restart LDAP to load new base file dc={{item.org}},dc={{item.tld}}"
   ansible.builtin.service:
     name: slapd
     state: restarted
@@ -31,15 +39,25 @@
   no_log: true
   register: bind_slappasswd
 
+- name: "Base: set DB path /var/lib/ldap/{{item.org}}.{{item.tld}}"
+  community.general.ldap_attrs:
+    dn: "{{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}"
+    attributes:
+      olcSuffix: "dc={{item.org}},dc={{item.tld}}"
+      olcRootDN: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+      olcDbDirectory: "/var/lib/ldap/{{item.org}}.{{item.tld}}"
+    state: exact
+  register: db_directory
+  tags: openldap,dir
+
 # Properly configure the database
-- name: "Base: Configure directory dc=qimata,dc=org"
+- name: "Base: Configure directory dc={{item.org}},dc={{item.tld}}"
   community.general.ldap_attrs:
     dn: "{{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}"
     attributes:
       olcSuffix: "dc={{item.org}},dc={{item.tld}}"
       olcRootDN: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
       olcDbCheckpoint: 512 30
-      olcDbMaxSize: 1073741824
       olcLastMod: "TRUE"
       olcDbIndex:
         - >-
@@ -59,6 +77,31 @@
           {2}to * by * read
     state: exact
 
+- name: "Base: Configure MDB dc={{item.org}},dc={{item.tld}}"
+  community.general.ldap_attrs:
+    dn: "{{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}"
+    attributes:
+      olcSuffix: "dc={{item.org}},dc={{item.tld}}"
+      olcRootDN: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+      olcDbMaxSize: 1073741824
+    state: exact
+  when: openldap_db_engine == "MDB"
+
+- name: "Base: Configure HDB dc={{item.org}},dc={{item.tld}}"
+  community.general.ldap_attrs:
+    dn: "{{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}"
+    attributes:
+      olcSuffix: "dc={{item.org}},dc={{item.tld}}"
+      olcRootDN: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+      olcDbConfig: 
+        - >-
+          {0}set_cachesize 0 2097152 0
+          {1}set_lk_max_objects 1500
+          {2}set_lk_max_locks 1500
+          {3}set_lk_max_lockers 1500
+    state: exact
+  when: openldap_db_engine == "MDB"
+
 # We set the new password hash every run because we have no easy way to verify the bind password
 # We can try to connect using the bind password and generate hash if connection fails
 # But this might give us false-positives
@@ -71,7 +114,7 @@
   changed_when: false
 
 ## Create DC Object
-- name: "Base: Create DC Object"
+- name: "Base: Create DC Object dc={{item.org}},dc={{item.tld}}"
   community.general.ldap_entry:
     bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
     bind_pw: "{{item.bind_password}}"
@@ -85,7 +128,7 @@
       dc: "{{item.org}}"
     state: present
 
-- name: "Base: hash admin password"
+- name: "Base: hash admin password dc={{item.org}},dc={{item.tld}}"
   shell: "slappasswd -s {{item.bind_password}}"
   ignore_errors: true
   changed_when: false
@@ -94,7 +137,7 @@
   when: item.create_admin | default(true)
 
 ## Create admin user
-- name: "Base: Make sure we have an admin user"
+- name: "Base: Make sure we have an admin user dc={{item.org}},dc={{item.tld}}"
   community.general.ldap_entry:
     bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
     bind_pw: "{{item.bind_password}}"
@@ -108,11 +151,3 @@
     state: present
   changed_when: false
   when: item.create_admin | default(true)
-
-# - name: Set a password for the admin user
-#   community.general.ldap_passwd:
-#     bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
-#     bind_pw: "{{item.bind_password}}"
-#     dn: "cn={{item.admin_user_name|default('admin')}},dc={{item.org}},dc={{item.tld}}"
-#     passwd: item.admin_user_password
-#   when: item.create_admin | default(true)

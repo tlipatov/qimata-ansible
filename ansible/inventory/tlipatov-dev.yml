@@ -12,12 +12,6 @@ ldap:
 ldap_producers:
   hosts:
     ldap-01.dev.qimata
-    #74.101.208.68
-  vars:
-    openldap_sync_consumer: false
-
 ldap_consumers:
   hosts:
-    #ldap-01.dev.qimata:
-  vars:
-    openldap_sync_consumer: true
+    ldap-02.dev.qimata

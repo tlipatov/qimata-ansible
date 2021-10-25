@@ -17,8 +17,6 @@ openldap_bases: []
 
 # This is used to confiugre slapd when the package is instaled
 openldap_base: "{{ 'dc=' + openldap_bases[0].org + ',dc=' + openldap_bases[0].tld }}"
-# openldap_bind_id: "{{ 'cn=' + openldap_bases[0].bind_user + ',' + openldap_base }}"
-# openldap_bind_dn: "{{ 'cn=' + openldap_base +  }}"
 openldap_org: "{{openldap_bases[0].org}}"
 openldap_tld: "{{openldap_bases[0].tld}}"
 openldap_domain_name: "{{ openldap_bases[0].org + '.' + openldap_bases[0].tld }}"
@@ -30,19 +28,20 @@ openldap_admin_password: openldap_bases[0].bind_bind_password
 openldap_config: true
 
 # Debain packages
+openldap_ansible_runtime_packages:
+  - python-apt
+  - python-ldap
 openldap_packages:
   - slapd
   - ldap-utils
   - schema2ldif
-  - python-ldap
 
-# DB Engine: MDB | HDB
-openldap_db_engine: MDB
+# DB Engine: MDB | HDB  Use HDB if you need syncrepl
+openldap_db_engine: HDB
 
-
-# # Define a set of schema specifications files. 
-# openldap_schemas:
-#   - cosine
+# Sync
+openldap_syncrepl_provider: false
+openldap_syncrepl_consumer: false
 
 # Enable TLS
 openldap_tls: false
@@ -63,7 +62,6 @@ openldap_tls_key_var: false
 openldap_tls_ca_cert_file: false
 openldap_tls_crt_file: false
 openldap_tls_key_file: false
-
 
 # TLS file server paths
 openldap_tls_dir: "/etc/ldap/tls"

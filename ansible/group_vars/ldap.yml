@@ -11,12 +11,14 @@ openldap_bases:
     admin_user_password: f00b@r
     users: "{{qimata_com_users}} + {{global_users}}"
     units: "{{organizational_units}}"
+    syncrepl: true
   - database: "2"
     org: "qimata"
     tld: "org"
     bind_user: admin
     bind_password: ld@p123!
     admin_user_password: f00b@r
+    syncrepl: true
 
 organizational_units:
   - users
@@ -42,6 +44,9 @@ qimata_com_users:
 
 # TLS certificates
 openldap_tls: true
+
+# Sync config
+openldap_syncrepl_provider_host: ldap-01.dev.qimata
 
 # TLC base64 encoded strings (can also be vault encrypted)
 openldap_tls_crt_var: !vault |

@@ -1,0 +1,23 @@
+---
+
+# Properly configure the sync consumer
+- name: "Syncprel Consumer: create {{'/etc/ldap/ldif-templates/syncconsumer-olcDatabase={'+item.database+'}hdb.ldif'}}"
+  community.general.ldap_attrs:
+    dn: "{{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}"
+    attributes:
+      olcUpdateRef: ldaps://{{openldap_syncrepl_provider_host}}
+      olcSyncrepl:
+          rid=123
+          provider="ldaps://{{openldap_syncrepl_provider_host}}:636/"
+          type=refreshAndPersist
+          retry="60 30 300 +"
+          searchbase="dc={{item.org}},dc={{item.tld}}"
+          bindmethod=simple
+          binddn="cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+          credentials={{item.bind_password}}
+    state: exact
+  changed_when: false
+  when: item.syncrepl|default('false')
+
+# To check if replicaiton is working compare the contextCSN on both servers
+#ldapsearch -z1 -LLLQY EXTERNAL -H ldapi:/// -s base -b dc=qimata,dc=com contextCSN
