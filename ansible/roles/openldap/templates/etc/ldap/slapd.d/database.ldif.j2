@@ -1,0 +1,7 @@
+dn: olcDatabase={{ '{' }}{{item.database}}{{ '}' }}mdb
+objectClass: olcDatabaseConfig
+objectClass: olcMdbConfig
+olcDatabase: {{ '{' }}{{item.database}}{{ '}' }}mdb
+olcDbDirectory: /var/lib/ldap
+olcSuffix: dc={{item.org}},dc={{item.tld}}
+structuralObjectClass: olcMdbConfig

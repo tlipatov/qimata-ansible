@@ -1,0 +1,12 @@
+---
+
+- name: "Units: Create org unit on {{item.org}}.{{item.tld}}"
+  community.general.ldap_entry:
+    bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+    bind_pw: "{{item.bind_password}}"
+    dn: "ou={{this_item}},dc={{item.org}},dc={{item.tld}}"
+    objectClass: organizationalUnit
+  loop: "{{ item.units | default([]) }}"
+  loop_control:
+    loop_var: this_item
+  tags: openldap, units

@@ -1,0 +1,118 @@
+# Check if db ldif file exists
+- name: "Base: Check if base file exists {{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}mdb.ldif' }}"
+  stat:
+    path: "{{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}mdb.ldif' }}"
+  register: slapd_d_config
+
+  # Create simple ldif file if it does not exist
+- name: "Base: Create {{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}mdb.ldif' }}"
+  template:
+    src: etc/ldap/slapd.d/database.ldif.j2
+    dest: "{{ '/etc/ldap/slapd.d/cn=config/olcDatabase={'+item.database+'}mdb.ldif' }}"
+    owner: openldap
+    group: openldap
+    mode: 0644
+  become: true
+  tags: openldap, config
+  when: not slapd_d_config.stat.exists
+  register: slapd_d_config_template
+
+# Restart slapd if we created a new ldif file
+- name: "Base: restart LDAP to load new base file"
+  ansible.builtin.service:
+    name: slapd
+    state: restarted
+  when: slapd_d_config_template.changed
+
+- name: "Base: hash bind password"
+  shell: "slappasswd -s {{item.bind_password}}"
+  ignore_errors: true
+  changed_when: false
+  no_log: true
+  register: bind_slappasswd
+
+# Properly configure the database
+- name: "Base: Configure directory dc=qimata,dc=org"
+  community.general.ldap_attrs:
+    dn: "{{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}"
+    attributes:
+      olcSuffix: "dc={{item.org}},dc={{item.tld}}"
+      olcRootDN: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+      olcDbCheckpoint: 512 30
+      olcDbMaxSize: 1073741824
+      olcLastMod: "TRUE"
+      olcDbIndex:
+        - >-
+          objectClass eq
+        - >-
+          cn,uid eq
+        - >-
+          uidNumber,gidNumber eq
+        - >-
+          member,memberUid eq
+      olcAccess:
+        - >-
+          {0}to attrs=userPassword by self write by anonymous auth by * none
+        - >-
+          {1}to attrs=shadowLastChange by self write by * read
+        - >-
+          {2}to * by * read
+    state: exact
+
+# We set the new password hash every run because we have no easy way to verify the bind password
+# We can try to connect using the bind password and generate hash if connection fails
+# But this might give us false-positives
+- name: "Base: Configure bind password dc=qimata,dc=org"
+  community.general.ldap_attrs:
+    dn: "{{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}"
+    attributes:
+      olcRootPW: "{{bind_slappasswd.stdout}}"
+    state: exact
+  changed_when: false
+
+## Create DC Object
+- name: "Base: Create DC Object"
+  community.general.ldap_entry:
+    bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+    bind_pw: "{{item.bind_password}}"
+    dn: "dc={{item.org}},dc={{item.tld}}"
+    objectClass: 
+      - dcObject
+      - organization
+      - top
+    attributes:
+      o: "{{item.org}}"
+      dc: "{{item.org}}"
+    state: present
+
+- name: "Base: hash admin password"
+  shell: "slappasswd -s {{item.bind_password}}"
+  ignore_errors: true
+  changed_when: false
+  no_log: true
+  register: admin_slappasswd    
+  when: item.create_admin | default(true)
+
+## Create admin user
+- name: "Base: Make sure we have an admin user"
+  community.general.ldap_entry:
+    bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+    bind_pw: "{{item.bind_password}}"
+    dn: "cn={{item.admin_user_name|default('admin')}},dc={{item.org}},dc={{item.tld}}"
+    objectClass:
+      - simpleSecurityObject
+      - organizationalRole
+    attributes:
+      description: LDAP administrator
+      userPassword: "{{admin_slappasswd.stdout}}"
+    state: present
+  changed_when: false
+  when: item.create_admin | default(true)
+
+# - name: Set a password for the admin user
+#   community.general.ldap_passwd:
+#     bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+#     bind_pw: "{{item.bind_password}}"
+#     dn: "cn={{item.admin_user_name|default('admin')}},dc={{item.org}},dc={{item.tld}}"
+#     passwd: item.admin_user_password
+#   when: item.create_admin | default(true)
