@@ -41,6 +41,21 @@ qimata_com_users:
       sn: Doe
       uid: 10000
       cn: John Doe
+  - FirstName: Jane
+    LastName: Dee
+    # Defines OU name
+    ou: users
+    password: 4r3e2w1q
+    attributes: 
+      # Start user numbers at 10000 and up
+      uidNumber: 10001
+      # Defines gidNum from openldap_posixgroups
+      gidNumber: 10001
+      loginShell: /bin/bash
+      homeDirectory: /home/jane
+      sn: Dee
+      uid: 10001
+      cn: Jane Dee
 
 # TLS certificates
 openldap_tls: true
