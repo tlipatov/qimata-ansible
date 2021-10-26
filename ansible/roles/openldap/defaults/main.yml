@@ -68,3 +68,6 @@ openldap_tls_dir: "/etc/ldap/tls"
 openldap_tls_ca_cert_dst: "{{openldap_tls_dir}}/ca.cert.pem"
 openldap_tls_crt_dst:  "{{openldap_tls_dir}}/tls.crt"
 openldap_tls_key_dst: "{{openldap_tls_dir}}/tls.key"
+
+# Logging
+openldap_syslog_level: 256
