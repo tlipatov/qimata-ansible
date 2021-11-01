@@ -18,12 +18,29 @@ openldap_bases:
     bind_user: admin
     bind_password: ld@p123!
     admin_user_password: f00b@r
+    users: "{{qimata_org_users}} + {{global_users}}"
+    units: "{{organizational_units}}"
     syncrepl: true
 
 organizational_units:
   - users
 
-global_users: []
+global_users:
+  - FirstName: Taras
+    LastName: Li
+    # Defines OU name
+    ou: users
+    password: q2w1w3e2
+    attributes: 
+      # Start user numbers at 10000 and up
+      uidNumber: 10100
+      # Defines gidNum from openldap_posixgroups
+      gidNumber: 10100
+      loginShell: /bin/bash
+      homeDirectory: /home/taras
+      sn: Li
+      uid: 10100
+      cn: Taras Li
 
 qimata_com_users:
   - FirstName: John
@@ -41,6 +58,8 @@ qimata_com_users:
       sn: Doe
       uid: 10000
       cn: John Doe
+
+qimata_org_users:
   - FirstName: Jane
     LastName: Dee
     # Defines OU name
@@ -48,20 +67,21 @@ qimata_com_users:
     password: 4r3e2w1q
     attributes: 
       # Start user numbers at 10000 and up
-      uidNumber: 10001
+      uidNumber: 10000
       # Defines gidNum from openldap_posixgroups
-      gidNumber: 10001
+      gidNumber: 10000
       loginShell: /bin/bash
       homeDirectory: /home/jane
       sn: Dee
-      uid: 10001
+      uid: 10000
       cn: Jane Dee
 
-# TLS certificates
-openldap_tls: true
 
 # Sync config
 openldap_syncrepl_provider_host: ldap-01.dev.qimata
+
+# TLS certificates
+openldap_tls: true
 
 # TLC base64 encoded strings (can also be vault encrypted)
 openldap_tls_crt_var: !vault |
