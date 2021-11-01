@@ -5,6 +5,9 @@
 
 
   roles:
+  - role: ufw
+    tags:
+    - ufw
   - role: openldap
     tags:
     - openldap

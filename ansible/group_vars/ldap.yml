@@ -76,6 +76,10 @@ qimata_org_users:
       uid: 10000
       cn: Jane Dee
 
+# UFW allow LDAP ports
+ufw_allow_portss:
+  - "636"
+  - "389"
 
 # Sync config
 openldap_syncrepl_provider_host: ldap-01.dev.qimata
