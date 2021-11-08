@@ -77,7 +77,7 @@ qimata_org_users:
       cn: Jane Dee
 
 # UFW allow LDAP ports
-ufw_allow_portss:
+ufw_allow_ports:
   - "636"
   - "389"
 
