@@ -14,12 +14,15 @@ ldap:
 ldap_producers:
   hosts:
     ldap-01.dev.qimata
+
 ldap_consumers:
   hosts:
     ldap-02.dev.qimata
+
 openvpn:
   hosts:
     openvpn-01.dev.qimata
+
 smtp:
   hosts:
     smtp-01.dev.qimata
