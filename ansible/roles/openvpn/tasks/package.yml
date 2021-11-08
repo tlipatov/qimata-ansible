@@ -1,0 +1,9 @@
+# Install the packages
+- name: "Package: install packages"
+  apt:
+    name: "{{ openvpn_packages }}"
+    state: present
+  become: true
+  register: result
+  until: result is successful
+  tags: openvpn, package

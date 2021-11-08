@@ -1,0 +1,6 @@
+---
+
+openvpn_packages:
+  - openvpn
+  - openvpn-auth-ldap
+  - openvpn-systemd-resolved
