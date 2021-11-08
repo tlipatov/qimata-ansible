@@ -3,6 +3,8 @@
 dev:
   children:
     ldap:
+    openvpn:
+    smtp:
 
 ldap:
   children:
@@ -15,3 +17,9 @@ ldap_producers:
 ldap_consumers:
   hosts:
     ldap-02.dev.qimata
+openvpn:
+  hosts:
+    openvpn-01.dev.qimata
+smtp:
+  hosts:
+    smtp-01.dev.qimata

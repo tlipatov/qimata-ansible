@@ -1,14 +1,30 @@
+- hosts: all
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  roles:
+  # All hosts get the UFW role
+  - role: ufw
+    tags:
+    - ufw
+
 - hosts: ldap
   become: yes
   gather_facts: yes
   gather_timeout: 120
 
-
   roles:
-  - role: ufw
-    tags:
-    - ufw
   - role: openldap
     tags:
     - openldap
 
+- hosts: openvpn
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  roles:
+  - role: openvpn
+    tags:
+    - openvpn
