@@ -1,0 +1,229 @@
+---
+
+- block: 
+  - name: Copy CA key
+    copy:
+      content: "{{ openvpn_ca_key | b64decode }}"
+      dest: "{{ openvpn_key_dir }}/ca-key.pem"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    when: openvpn_ca_key != ""
+
+  - name: Copy CA cert
+    copy:
+      content: "{{ openvpn_ca_crt | b64decode}}"
+      dest: "{{ openvpn_key_dir }}/ca.crt"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    when: openvpn_ca_crt != ""
+
+  - name: Copy CA key
+    copy:
+      content: "{{ openvpn_ca_key | b64decode}}"
+      dest: "{{ openvpn_key_dir }}/ca.key"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    when: openvpn_ca_key != ""
+  when: not openvpn_generate_ca
+
+- block:
+  - name: Copy server cert
+    copy:
+      content: "{{ openvpn_server_crt | b64decode}}"
+      dest: "{{ openvpn_key_dir }}/server.crt"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    when: openvpn_server_crt != ""
+
+  - name: Copy server key
+    copy:
+      content: "{{ openvpn_server_key | b64decode}}"
+      dest: "{{ openvpn_key_dir }}/server.key"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    when: openvpn_server_key != ""
+  when: not openvpn_generate_server_keys
+
+
+
+- block:
+  - name: Copy openssl server/ca extensions
+    copy:
+      src: "{{ item }}"
+      dest: "{{ openvpn_key_dir }}"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    with_items:
+      - openssl-server.ext
+      - openssl-ca.ext
+
+  - name: Copy openssl server/ca extensions
+    copy:
+      src: "{{ item }}"
+      dest: "{{ openvpn_key_dir }}"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    with_items:
+      - openssl-server.ext
+      - openssl-ca.ext
+
+  - name: Generate CA key
+    command: >-
+      openssl req -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout ca-key.pem -out ca-csr.pem
+      -days 3650 -subj /CN=OpenVPN-CA-{{ inventory_hostname[:53] }}/
+    args:
+      chdir: "{{ openvpn_key_dir }}"
+      creates: ca-key.pem
+
+  - name: Sign CA key
+    command: openssl x509 -req -in ca-csr.pem -out ca.crt -CAcreateserial -signkey ca-key.pem -sha256 -days 3650 -extfile openssl-ca.ext
+    args:
+      chdir: "{{ openvpn_key_dir }}"
+      creates: ca.crt
+
+  - name: Protect CA keys
+    file:
+      path: "{{ openvpn_key_dir }}/{{ item }}"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    loop:
+      - ca.crt
+      - ca-key.pem
+      - ca-csr.pem
+
+  when: openvpn_generate_ca
+
+- block:
+  - name: Generate server key
+    command: >-
+      openssl req -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout server.key -out server.csr
+      -days 3650 -subj /CN=OpenVPN-Server-{{ inventory_hostname[:49] }}/
+    args:
+      chdir: "{{ openvpn_key_dir }}"
+      creates: server.key
+
+  - name: Sign server key
+    command: openssl x509 -req -in server.csr -out server.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -CAcreateserial -extfile openssl-server.ext
+    args:
+      chdir: "{{ openvpn_key_dir }}"
+      creates: server.crt
+
+  - name: Protect server keys
+    file:
+      path: "{{ openvpn_key_dir }}/{{ item }}"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    loop:
+      - server.crt
+      - server.key
+      - server.csr
+      - ca.srl
+  
+  when: openvpn_generate_server_keys
+
+- block:
+
+  - name: Copy tls-auth key
+    copy:
+      content: "{{ openvpn_tls_auth_key }}"
+      dest: "{{ openvpn_key_dir }}/ta.key"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    when: openvpn_tls_auth_key != ""
+
+  - name: Generate tls-auth key
+    command: openvpn --genkey --secret ta.key
+    args:
+      chdir: "{{ openvpn_key_dir }}"
+      creates: ta.key
+    when: openvpn_tls_auth_key == ""
+
+  - name: Protect ta.key key
+    file:
+      path: "{{ openvpn_key_dir }}/ta.key"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    when: openvpn_tls_auth_key == ""
+  when: openvpn_tls_auth_required
+
+- block:
+  - name: Copy pre-generated DH params
+    copy:
+      content: "{{ openvpn_dh_params }}"
+      dest: "{{ openvpn_key_dir }}/dh.pem"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    when: openvpn_dh_params != ""
+
+  - name: Generate dh params
+    command: openssl dhparam -out {{ openvpn_key_dir }}/dh.pem {{ openvpn_rsa_bits }}
+    args:
+      chdir: "{{ openvpn_key_dir }}"
+      creates: dh.pem
+    when: openvpn_dh_params == ""
+
+# - block:
+#   - name: Generate dh params
+#     command: openssl dhparam -out {{ openvpn_key_dir }}/dh.pem {{ openvpn_rsa_bits }}
+#     args:
+#       chdir: "{{ openvpn_key_dir }}"
+#       creates: dh.pem
+#   - name: Protect dh params
+#     file:
+#       path: "{{ openvpn_key_dir }}/dh.pem"
+#       owner: "{{ openvpn_user }}"
+#       group: "{{ openvpn_group }}"
+#       mode: 0400
+#   when: openvpn_use_generated_dh_params
+
+# - name: Install ca.conf config file
+#   template:
+#     src: ca.conf.j2
+#     dest: "{{ openvpn_key_dir }}/ca.conf"
+#     owner: "{{ openvpn_user }}"
+#     group: "{{ openvpn_group }}"
+#     mode: 0400
+
+## TODO certificate revocation
+# - name: Create initial certificate revocation list squence number
+#   shell: "echo 00 > crl_number"
+#   args:
+#     chdir: "{{ openvpn_key_dir }}"
+#     creates: crl_number
+
+# - name: Generate tls-auth key
+#   command: openvpn --genkey --secret ta.key
+#   args:
+#     chdir: "{{ openvpn_key_dir }}"
+#     creates: ta.key
+#   when: not (openvpn_tls_auth_key|bool)
+
+# Certificate expiration test for revocation
+# - name: Install crl-cron script
+#   template:
+#     src: crl-cron.sh.j2
+#     dest: "{{ openvpn_base_dir }}/crl-cron.sh"
+#     owner: root
+#     group: root
+#     mode: 0744
+
+# - name: Add cron to check every Saturday if the CRL needs to be renewed
+#   cron:
+#     name: "check if CRL will expire soon"
+#     special_time: weekly
+#     job: "sh {{ openvpn_base_dir }}/crl-cron.sh"
+#   when: not ci_build
+
+

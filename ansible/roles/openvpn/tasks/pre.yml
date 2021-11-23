@@ -1,0 +1,15 @@
+---
+
+- name: Validate network variables
+  assert: 
+    that:
+      openvpn_server_network != false
+    fail_msg: "Must set the openvpn_server_network"
+
+- name: Create openvpn key directory
+  file:
+    path: "{{ openvpn_key_dir }}"
+    state: directory
+    owner: "{{ openvpn_user }}"
+    group: "{{ openvpn_group }}"
+    mode: 0750

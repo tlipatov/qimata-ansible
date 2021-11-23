@@ -1,0 +1,15 @@
+---
+
+- name: Enable ipv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    ignoreerrors: true
+  failed_when: false
+
+- name: Enable ipv6 forwarding
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '1'
+    ignoreerrors: true
+  when: openvpn_server_ipv6_network

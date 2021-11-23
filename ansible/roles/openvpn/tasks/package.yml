@@ -1,5 +1,5 @@
 # Install the packages
-- name: "Package: install packages"
+- name: "Install packages"
   apt:
     name: "{{ openvpn_packages }}"
     state: present
@@ -7,3 +7,14 @@
   register: result
   until: result is successful
   tags: openvpn, package
+
+
+- name: "Install plugin packages"
+  apt:
+    name: "{{ openvpn_packages_plugin_ldap }}"
+    state: present
+  become: true
+  register: result
+  until: result is successful
+  tags: openvpn, package
+  when: openvpn_use_ldap | bool

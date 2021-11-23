@@ -1,2 +1,54 @@
 ---
-- include: package.yml
+
+- name: Validate config
+  include: pre.yml
+  tags:
+    - pre
+
+- name: Install package
+  include: package.yml
+  tags:
+    - packages
+
+- name: Configure Networking
+  include: networking.yml
+  tags:
+    - networking
+
+- name: Configure UFW
+  include: ufw.yml
+  tags:
+    - ufw
+
+- name: Copy or Generate server keys
+  import_tasks: server_keys.yml
+  tags:
+    - server_keys
+
+- name: Configure OpenVPN server
+  import_tasks: config_server.yml
+  tags:
+    - config_server
+
+- name: Install LDAP config
+  import_tasks: ldap.yml
+  when: openvpn_use_ldap
+  tags:
+    - ldap
+
+- name: Configure OpenVPN client
+  import_tasks: config_client.yml
+  # when: openvpn_client_config
+  tags:
+    - config_client
+
+- include_tasks: client_keys.yml
+  with_dict: "{{ openvpn_clients }}"
+  tags:
+    - client_keys
+
+- name: Setup openvpn auto-start & start
+  service:
+    name: "{{ openvpn_service_name }}"
+    enabled: true
+    state: started

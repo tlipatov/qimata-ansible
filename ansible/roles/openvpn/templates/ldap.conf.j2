@@ -1,0 +1,63 @@
+<LDAP>
+    # LDAP server URL
+    URL {{ openvpn_ldap_url }}
+
+{% if not openvpn_ldap_anonymous_bind %}
+    # Bind DN (If your LDAP server doesn't support anonymous binds)
+    BindDN {{ openvpn_ldap_bind_dn }}
+    # Bind Password
+    Password {{ openvpn_ldap_bind_password }}
+{% endif %}
+
+    # Network timeout (in seconds)
+    Timeout 15
+
+    # Enable Start TLS
+    TLSEnable {{ openvpn_ldap_tls_enable }}
+
+    # Follow LDAP Referrals (anonymously)
+    FollowReferrals no
+
+{% if openvpn_ldap_tls_ca_cert_var %}
+    # TLS CA Certificate File
+    TLSCACertFile {{ openvpn_base_dir }}/auth/ca.cert.pem
+{% endif %}
+
+    # TLS CA Certificate Directory
+    TLSCACertDir /etc/ssl/certs
+
+    # Client Certificate and key
+    # If TLS client authentication is required
+{% if openvpn_ldap_tls_cert_file or openvpn_ldap_tls_cert_var%}
+    TLSCertFile {{ openvpn_base_dir }}/auth/tls.crt
+{% endif %}
+{% if openvpn_ldap_tls_key_file or openvpn_ldap_tls_key_var %}
+    TLSKeyFile{{ openvpn_base_dir }}/auth/tls.key
+{% endif %}
+    # Cipher Suite
+    # The defaults are usually fine here
+    # TLSCipherSuite ALL:!ADH:@STRENGTH
+</LDAP>
+
+<Authorization>
+    # Base DN
+    BaseDN "{{ openvpn_ldap_base_dn }}"
+
+    # User Search Filter
+    SearchFilter "{{ openvpn_ldap_search_filter }}"
+
+{% if openvpn_ldap_require_group %}
+    # Require Group Membership
+    RequireGroup True
+    # Add non-group members to a PF table (disabled)
+    #PFTable ips_vpn_users
+
+    <Group>
+        BaseDN "{{ openvpn_ldap_group_base_dn }}"
+        SearchFilter "{{ openvpn_ldap_group_search_filter }}"
+        MemberAttribute uniqueMember
+        # Add group members to a PF table (disabled)
+        #PFTable ips_vpn_eng
+    </Group>
+{% endif %}
+</Authorization>

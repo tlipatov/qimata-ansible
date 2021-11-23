@@ -1,0 +1,13 @@
+---
+
+- name: restart openvpn-server
+  service:
+    name: "{{ openvpn_service_name }}"
+    state: restarted
+  become: true
+
+- name: restart ufw
+  service:
+    name: ufw
+    state: restarted
+  become: true

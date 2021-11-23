@@ -1,0 +1,51 @@
+---
+
+- name: Create auth directory
+  file:
+    path: "{{ openvpn_base_dir }}/auth"
+    state: directory
+    owner: "{{ openvpn_user }}"
+    group: "{{ openvpn_group }}"
+    mode: 0750
+
+- block:
+  - name: "VAR CA cert file"
+    copy:
+      dest: "{{ openvpn_base_dir }}/auth/ca.cert.pem"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0600
+      content: |
+        {{openvpn_ldap_tls_ca_cert_var | b64decode}}
+
+  - name: "VAR cert file"
+    copy:
+      dest: "{{ openvpn_base_dir }}/auth/tls.crt"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0600
+      content: |
+        {{openvpn_ldap_tls_cert_var | b64decode}}
+
+  - name: "VAR key file"
+    copy:
+      dest: "{{ openvpn_base_dir }}/auth/tls.key"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0600
+      content: |
+        {{openvpn_ldap_tls_key_var | b64decode}}
+
+  when: (openvpn_ldap_tls_ca_cert_var or openvpn_ldap_tls_cert_var or openvpn_ldap_tls_key_var) and not
+        (openvpn_ldap_tls_ca_cert_file or openvpn_ldap_tls_cert_file or openvpn_ldap_tls_key_file)
+
+
+- name: Install LDAP config
+  template:
+    src: ldap.conf.j2
+    dest: "{{ openvpn_base_dir }}/auth/ldap.conf"
+    owner: "{{ openvpn_user }}"
+    group: "{{ openvpn_group }}"
+    mode: 0600
+  notify:
+    - restart openvpn-server

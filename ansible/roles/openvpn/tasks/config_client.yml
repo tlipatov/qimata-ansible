@@ -1,0 +1,24 @@
+---
+
+- name: Create client config directory
+  file:
+    state: directory
+    path: "{{ openvpn_client_dir }}"
+    owner: "{{ openvpn_user }}"
+    group: "{{ openvpn_group }}"
+    mode: 0750
+
+- name: Create client config file
+  template:
+    src: client_ccd.j2
+    dest: "{{ openvpn_client_dir }}/{{ item.key }}"
+    owner: "{{ openvpn_user }}"
+    group: "{{ openvpn_group }}"
+    mode: 0640
+  with_dict: "{{ openvpn_clients }}"
+
+- name: Delete custom client config from client config directory
+  file:
+    path: "{{ openvpn_client_dir }}/{{ item }}"
+    state: absent
+  with_items: "{{ openvpn_client_absent }}"

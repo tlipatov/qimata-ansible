@@ -1,0 +1,96 @@
+---
+
+- name: Create openvpn ovpn file directory
+  file:
+    path: "{{ openvpn_ovpn_dir }}"
+    state: directory
+    owner: "{{ openvpn_user }}"
+    group: "{{ openvpn_group }}"
+    mode: 0755
+
+- block:
+  - name: Copy client key
+    copy:
+      content: "{{ item.value.key | b64decode }}"
+      dest: "{{ openvpn_key_dir }}/{{ item.key }}.key"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+
+  - name: Copy client crt
+    copy:
+      content: "{{ item.value.crt | b64decode }}"
+      dest: "{{ openvpn_key_dir }}/{{ item.key }}.crt"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+
+  when: item.value.key is defined and item.value.crt is defined
+
+- block:
+  - name: Copy openssl client extensions
+    copy:
+      src: openssl-client.ext
+      dest: "{{ openvpn_key_dir }}"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+
+  - name: Generate client key
+    command: >-
+      openssl req -nodes -newkey rsa:{{ openvpn_rsa_bits }} -keyout {{ item.key }}.key -out {{ item.key }}.csr
+      -days 3650 -subj /CN=OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item.key[:24] }}/
+    args:
+      chdir: "{{ openvpn_key_dir }}"
+      creates: "{{ item.key }}.key"
+
+  - name: Sign client key
+    command: openssl x509 -req -in {{ item.key }}.csr -out {{ item.key }}.crt -CA ca.crt -CAkey ca-key.pem -sha256 -days 3650 -extfile openssl-client.ext
+    args:
+      chdir: "{{ openvpn_key_dir }}"
+      creates: "{{ item.key }}.crt"
+
+  - name: Protect client keys
+    file:
+      path: "{{ this_item }}"
+      owner: "{{ openvpn_user }}"
+      group: "{{ openvpn_group }}"
+      mode: 0400
+    loop:
+      - "{{ openvpn_key_dir }}/{{ item.key }}.key"
+      - "{{ openvpn_key_dir }}/{{ item.key }}.csr"
+      - "{{ openvpn_key_dir }}/{{ item.key }}.crt"
+    loop_control:
+      loop_var: this_item
+
+  when: item.value.key is not defined and item.value.crt is not defined
+
+- name: Register client key
+  slurp:
+    src: "{{ openvpn_key_dir }}/{{ item.key }}.key"
+  register: client_key
+
+- name: Register client cert
+  slurp:
+    src: "{{ openvpn_key_dir }}/{{ item.key }}.crt"
+  register: client_crt
+
+- block:
+  - name: Register server CA cert
+    slurp:
+      src: "{{ openvpn_key_dir }}/ca.crt"
+    register: ca_cert
+
+  - name: Register TLS Auth key
+    slurp:
+      src: "{{ openvpn_key_dir }}/ta.key"
+    register: tls_auth
+  when: openvpn_tls_auth_required
+
+- name: Create client config file
+  template:
+    src: client.ovpn.j2
+    dest: "{{ openvpn_ovpn_dir }}/{{ item.key }}-{{ inventory_hostname }}.ovpn"
+    owner: "{{ openvpn_user }}"
+    group: "{{ openvpn_group }}"
+    mode: 0644

@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+{% if item.value.config is defined %}
+{% for line in item.value.config -%}
+{{ line }}
+{% endfor -%}
+{% endif %}

@@ -1,0 +1,53 @@
+---
+
+- name: Enable forwarding - ufw
+  lineinfile:
+    dest: /etc/default/ufw
+    regexp: "^DEFAULT_FORWARD_POLICY="
+    line: DEFAULT_FORWARD_POLICY="ACCEPT"
+
+- name: Allow incoming VPN connections - ufw
+  ufw:
+    direction: in
+    proto: "{{ openvpn_proto }}"
+    to_port: "{{ openvpn_port | string }}"
+    rule: allow
+
+# Allow specific interfaces
+- name: Accept packets from interfaces
+  community.general.ufw:
+    direction: in
+    interface: "{{item}}"
+    rule: allow
+  loop: "{{openvpn_ufw_allow_interfaces}}"
+
+
+- name: Setup nat table rules - ufw
+  blockinfile:
+    dest: /etc/ufw/before.rules
+    state: present
+    insertbefore: \*filter
+    block: |
+      # OpenVPN config
+      *nat
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING -s {{ openvpn_server_network }}/24 -j SNAT --to-source {{ ansible_default_ipv4.address }}
+      COMMIT
+  when: not openvpn_masquerade_not_snat
+  notify:
+    - restart ufw
+  
+- name: Setup nat table rules with MASQUERADE - ufw
+  blockinfile:
+    dest: /etc/ufw/before.rules
+    state: present
+    insertbefore: \*filter
+    block: |
+      # OpenVPN config
+      *nat
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING -s {{ openvpn_server_network }}/24 -j MASQUERADE
+      COMMIT
+  when: openvpn_masquerade_not_snat
+  notify:
+    - restart ufw
