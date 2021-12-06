@@ -28,3 +28,13 @@
   - role: openvpn
     tags:
     - openvpn
+
+- hosts: ca
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  roles:
+  - role: ca
+    tags:
+    - ca
