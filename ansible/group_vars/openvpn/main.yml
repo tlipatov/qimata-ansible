@@ -14,8 +14,7 @@ openvpn_ldap_bind_password: ld@p123!
 openvpn_ldap_base_dn: "ou=users,dc=qimata,dc=com"
 openvpn_ldap_search_filter: "(uid=%u)"
 
-# openvpn_ldap_tls_enable: true
-
+openvpn_client_config: true
 openvpn_clients: 
   client1:
     config:
@@ -23,5 +22,6 @@ openvpn_clients:
       - push "route 192.168.1.0 255.255.255.0"
       - push "dhcp-option DOMAIN example.com"
       - iroute 192.168.4.0 255.255.255.0
+    client_options: []
     key: "{{ client_1_key }}"
     crt: "{{ client_1_crt }}"

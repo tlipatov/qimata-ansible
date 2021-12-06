@@ -11,7 +11,7 @@
 - name: Create client config file
   template:
     src: client_ccd.j2
-    dest: "{{ openvpn_client_dir }}/{{ item.key }}"
+    dest: "{{ openvpn_client_dir }}/OpenVPN-Client-{{ inventory_hostname[:24] }}-{{ item.key[:24] }}"
     owner: "{{ openvpn_user }}"
     group: "{{ openvpn_group }}"
     mode: 0640
