@@ -29,8 +29,8 @@ openldap_config: true
 
 # Debain packages
 openldap_ansible_runtime_packages:
-  - python-apt
-  - python-ldap
+  - python3-apt
+  - python3-ldap
 openldap_packages:
   - slapd
   - ldap-utils
