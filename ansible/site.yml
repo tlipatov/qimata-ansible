@@ -28,3 +28,27 @@
   - role: openvpn
     tags:
     - openvpn
+
+- hosts: bind_master
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  roles:
+  - role: systemli.bind9
+    tags:
+    - bind
+    - bind_master
+
+- hosts: bind_slave
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  roles:
+  - role: systemli.bind9
+    tags:
+    - bind
+    - bind_slave
+
+  

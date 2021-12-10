@@ -1,0 +1,89 @@
+;;
+;; BIND forward data file for zone berry.home
+;;
+
+$TTL                  86400   ; time-to-live - 24 hours could have been written as 24h or 1d
+
+@                     IN      SOA         ns1.qimata.net. mail.qimata.net. (
+                                                         2                ; Serial - (NOTE: Needs to increment every time you restart BIND)
+                                                    604800                ; Refresh
+                                                     86400                ; Retry
+                                                   2419200                ; Expire
+                                                    604800 )              ; Default TTL
+
+                      IN            NS           ns1.qimata.net.          ; nameserver
+                      IN            A            10.80.20.37              ; loop-back address
+; DNS Servers
+ns1                   IN            A            10.80.20.37	
+qimata.net.           IN            A            10.80.20.37
+
+; Hardware
+storage1              IN            A             10.80.0.1
+node2                 IN            A             10.80.0.2
+node3                 IN            A             10.80.0.3
+node4                 IN            A             10.80.0.4
+node5                 IN            A             10.80.0.5
+node6                 IN            A             10.80.0.6
+node7                 IN            A             10.80.0.7
+node8                 IN            A             10.80.0.8
+backup1               IN            A             10.80.0.11
+
+; System Servers
+ldap                    IN            A            10.80.20.1
+apt                    IN            A            10.80.20.85
+ca                    IN            A            10.80.20.33
+registry                    IN            A            10.80.20.65
+vpn                    IN            A            10.80.4.65
+router                IN            A             10.80.0.150
+bitwarden             IN            A             10.80.20.77
+
+; Communication Servers
+email                    IN            A            10.80.10.1
+irc                    IN            A            10.80.10.65
+voice                    IN            A            10.80.10.80
+urlshortener                    IN            A            10.80.10.90
+
+; Data Servers
+elasticsearch                    IN            A            10.80.8.130
+kibana                    IN            A            10.80.8.165
+logstash                    IN            A            10.80.8.175
+mariadb                    IN            A             10.80.8.75
+influxdb                    IN            A            10.80.8.240
+minio                    IN            A            10.80.8.115
+neo4j                    IN            A            10.80.8.95
+postgres                    IN            A            10.80.8.26
+redis                    IN            A            10.80.8.210
+telegraph                    IN            A            10.80.8.250
+
+; Web Servers
+jaredsblog                    IN            A            10.80.6.1
+privateproxy                    IN            A            10.80.4.43
+publicproxy                    IN            A            10.80.4.1
+media                       IN              A            10.80.6.71
+
+; Development Servers
+gitlab                    IN            A            10.80.16.1
+jenkins                    IN            A            10.80.16.33
+youtrack                    IN            A            10.80.16.82
+nexus                    IN            A            10.80.16.74
+bugzilla                    IN            A            10.80.16.65
+windowsdev                    IN            A            10.80.16.90
+debiandev                 IN              A             10.80.16.106
+
+; Management
+organizr                    IN            A            10.80.14.41
+requesttracker                    IN            A            10.80.14.17
+graphana                    IN            A            10.80.14.33
+wiki                    IN            A            10.80.14.1
+
+; Messaging
+rabbitmq                    IN            A            10.80.12.1
+kafka                    IN            A            10.80.12.127
+
+; Games
+mangos                    IN            A            10.80.18.56
+zandronum                    IN            A            10.80.18.1
+aigym                    IN            A            10.80.18.9
+diablobot                    IN            A            10.80.18.32
+starcraftbot                    IN            A            10.80.18.44
+wwowbot                    IN            A            10.80.18.77
