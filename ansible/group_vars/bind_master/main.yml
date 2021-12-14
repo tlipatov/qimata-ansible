@@ -66,6 +66,7 @@ bind9_rndc_algorithm: hmac-md5
 # Global secondaries for all zones (if configured as primary)
 bind9_slaves:
   - 10.81.20.38
+  - 10.81.20.39
 
 # Enable BIND's XML statistics-channels (for monitoring purposes)
 bind9_statistics_enabled: False
