@@ -1,0 +1,21 @@
+---
+- name: Install packages
+  include: packages.yml
+  tags:
+    - packages
+
+- name: Download youtrack
+  include: download.yml
+  tags:
+    - install
+
+- name: Install Service
+  include: service.yml
+  tags:
+    - install
+
+- name: enable and start the youtrack service
+  service:
+    name: youtrack
+    state: started
+    enabled: true

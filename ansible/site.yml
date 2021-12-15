@@ -9,56 +9,70 @@
     tags:
     - ufw
 
-- hosts: ldap
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: ldap
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: openldap
-    tags:
-    - openldap
+#   roles:
+#   - role: openldap
+#     tags:
+#     - openldap
 
-- hosts: openvpn
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: openvpn
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: openvpn
-    tags:
-    - openvpn
+#   roles:
+#   - role: openvpn
+#     tags:
+#     - openvpn
 
-- hosts: bind_master
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: bind_master
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: systemli.bind9
-    tags:
-    - bind
-    - bind_master
+#   roles:
+#   - role: systemli.bind9
+#     tags:
+#     - bind
+#     - bind_master
 
-- hosts: bind_slave
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: bind_slave
+#   become: yes
+#   gather_facts: no
+#   gather_timeout: 120
 
-  roles:
-  - role: systemli.bind9
-    tags:
-    - bind
-    - bind_slave
+#   roles:
+#   - role: systemli.bind9
+#     tags:
+#     - bind
+#     - bind_slave
 
   
 
-- hosts: ca
+# - hosts: ca
+#   become: yes
+#   gather_facts: no
+#   gather_timeout: 120
+
+#   roles:
+#   - role: ca
+#     tags:
+#     - ca
+
+- hosts: youtrack
   become: yes
-  gather_facts: yes
+  gather_facts: no
   gather_timeout: 120
 
   roles:
-  - role: ca
+  - role: youtrack
     tags:
-    - ca
+    - youtrack
+  - role: geerlingguy.java
+    when: "ansible_os_family == 'Debian'"
+    java_packages:
+      - openjdk-11-jdk

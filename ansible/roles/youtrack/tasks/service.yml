@@ -1,0 +1,6 @@
+---
+- name: Add service file
+  copy:
+    src: files/youtrack.service
+    dest: /lib/systemd/system/youtrack.service
+

@@ -1,0 +1,16 @@
+---
+- name: Download the youtrack zip
+  get_url:
+    url: '{{ youtrack_download_url }}'
+    dest: /tmp/youtrack.zip
+
+- name: create directory for youtrack
+  file:
+    path: /usr/local/youtrack
+    state: directory
+  
+- name: unzip the youtrack zip
+  unarchive:
+    src: /tmp/youtrack.zip
+    dest: /usr/local/youtrack
+    remote_src: yes

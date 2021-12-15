@@ -1,0 +1,14 @@
+[Unit]
+Description=JetBrains Youtrack
+Requires=network.target
+After=syslog.target network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/local/youtrack/youtrack-2021.4.35970
+Type=forking
+ExecStart=/usr/local/youtrack/youtrack-2021.4.35970/bin/youtrack.sh start --no-browser
+ExecStop=/usr/local/youtrack/youtrack-2021.4.35970/bin/youtrack.sh stop --no-browser
+
+[Install]
+WantedBy=multi-user.target
