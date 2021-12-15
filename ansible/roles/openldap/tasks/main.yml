@@ -31,3 +31,7 @@
 - include_tasks: users.yml
   loop: "{{openldap_bases}}"
   when: not openldap_syncrepl_consumer|bool
+
+- include_tasks: entries.yml
+  loop: "{{openldap_bases}}"
+  when: not openldap_syncrepl_consumer|bool

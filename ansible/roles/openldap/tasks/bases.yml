@@ -129,7 +129,7 @@
     state: present
 
 - name: "Base: hash admin password dc={{item.org}},dc={{item.tld}}"
-  shell: "slappasswd -s {{item.bind_password}}"
+  shell: "slappasswd -s {{item.admin_user_password}}"
   ignore_errors: true
   changed_when: false
   no_log: true
