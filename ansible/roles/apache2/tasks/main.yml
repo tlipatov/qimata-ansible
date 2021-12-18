@@ -1,0 +1,18 @@
+---
+# tasks file for ansible-apache2
+- include: set_facts.yml
+
+- include: packages.yml
+  tags:
+    - install_apache2
+
+- include: config_apache2.yml
+  when: apache2_config
+
+- include: php.yml
+  tags:
+    - apache2_config_php
+    - install_apache2_php5
+  when: apache2_install_php
+
+- include: start_apache2.yml

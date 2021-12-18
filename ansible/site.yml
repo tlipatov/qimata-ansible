@@ -63,16 +63,28 @@
 #     tags:
 #     - ca
 
-- hosts: youtrack
+# - hosts: youtrack
+#   become: yes
+#   gather_facts: no
+#   gather_timeout: 120
+
+#   roles:
+#   - role: youtrack
+#     tags:
+#     - youtrack
+#   - role: geerlingguy.java
+#     when: "ansible_os_family == 'Debian'"
+#     java_packages:
+#       - openjdk-11-jdk
+
+- hosts: aptmirror
   become: yes
   gather_facts: no
   gather_timeout: 120
-
+  vars:
+    apt_mirror_populate_repos: false
+  tags:
+    - aptmirror
   roles:
-  - role: youtrack
-    tags:
-    - youtrack
-  - role: geerlingguy.java
-    when: "ansible_os_family == 'Debian'"
-    java_packages:
-      - openjdk-11-jdk
+   # - role: apache2
+    - role: aptmirror
