@@ -4,3 +4,4 @@
 - include: ssl.yml
 - include: config.yml
 - include: replication.yml
+  when: postgresql_replication_enabled

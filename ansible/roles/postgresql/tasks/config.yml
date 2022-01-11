@@ -34,5 +34,6 @@
     role_attr_flags: "{{postgresql_admin_user_attr_flags}}"
     state: "{{postgresql_admin_user_state}}"
   tags: admin_user
-  when: postgresql_replication_role != "replica"
+  when: (postgresql_replication_role == "primary") or
+        (postgresql_replication_role == "")
 
