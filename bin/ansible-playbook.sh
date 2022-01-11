@@ -4,7 +4,7 @@ WORK_DIR=${HOME}/dev/workspace/qimata
 
 ANSIBLE_WORK_DIR=${WORK_DIR}/qimata-ansible/ansible
 SSH_PRIVATE_KEY=ansible-dev_id_rsa
-SSH_KEY_DIR=${HOME}/dev/workspace/qimata/ssh
+SSH_KEY_DIR=${HOME}/dev/workspace/qimata/ssh/ansible
 REMOTE_USER=ansible
 ANSIBLE_VAULT_DIR=${WORK_DIR}
 
