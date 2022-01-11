@@ -1,0 +1,21 @@
+---
+# Postfix
+postfix_domain: dev.qimata
+postfix_myorigin: $mydomain
+postfix_home_mailbox: "Maildir/"
+
+postfix_smtpd_sasl_auth_enable: "yes"
+postfix_smtpd_sasl_type: dovecot
+
+# Dovecot
+dovecot_disable_plaintext_auth: "no"
+dovecot_auth_mechanisms: plain login
+dovecot_mail_location: "maildir:~/Maildir"
+dovecot_ssl: true
+
+ufw_allow_ports:
+ - 25
+ - 243
+ - 465
+ - 587
+ - 993
