@@ -1,0 +1,9 @@
+- name: Install package
+  include: package.yml
+  tags:
+    - packages
+
+- name: Configure
+  include: config.yml
+  tags:
+    - config

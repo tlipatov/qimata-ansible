@@ -1,0 +1,11 @@
+---
+
+# Install the packages
+- name: "Install packages"
+  apt:
+    name: "{{ dovecot_packages }}"
+    state: present
+  become: true
+  register: result
+  until: result is successful
+  tags: package

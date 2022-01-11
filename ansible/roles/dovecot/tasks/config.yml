@@ -1,0 +1,55 @@
+---
+
+- name: "Config: /etc/dovecot/dovecot.conf"
+  template:
+    src: dovecot.conf.j2
+    dest: /etc/dovecot/dovecot.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart dovecot
+
+- name: "Config: /etc/dovecot/conf.d/{{ item }}"
+  template:
+    src: "conf.d/{{ item }}.j2"
+    dest: "/etc/dovecot/conf.d/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: restart dovecot
+  with_items:
+  - 10-auth.conf
+  - 10-mail.conf
+  - 10-master.conf
+
+- block:
+  - name: Copy ssl cert
+    copy:
+      content: "{{ dovecot_ssl_cert }}"
+      dest: "/etc/dovecot/private/{{ dovecot_ssl_cert_file }}"
+      owner: "root"
+      group: "root"
+      mode: 0400
+    when: dovecot_ssl_cert != ""
+
+  - name: Copy ssl key
+    copy:
+      content: "{{ dovecot_ssl_key }}"
+      dest: "/etc/dovecot/private/{{ dovecot_ssl_key_file }}"
+      owner: "root"
+      group: "root"
+      mode: 0400
+    when: dovecot_ssl_key != ""
+
+  - name: "Config: /etc/dovecot/conf.d/10-ssl.conf"
+    template:
+      src: "conf.d/10-ssl.conf.j2"
+      dest: "/etc/dovecot/conf.d/10-ssl.conf"
+      owner: root
+      group: root
+      mode: 0644
+    become: true
+    notify: restart dovecot
+  when: dovecot_ssl | bool

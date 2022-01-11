@@ -1,0 +1,49 @@
+
+# Config
+dovecot_listen: "*, ::"
+
+# Auth
+dovecot_disable_plaintext_auth: "yes"
+dovecot_auth_mechanisms: plain
+
+# Mail
+dovecot_mail_location: "mbox:~/mail:INBOX=/var/mail/%u"
+
+# Master
+dovecot_service_auth:
+  unix_listener: |
+    unix_listener /var/spool/postfix/private/auth {
+      mode = 0666
+      user = postfix
+      group = postfix
+    }
+
+# SSL
+# Package default is true using auto-generated key/cert
+dovecot_ssl: true
+# Overwrites package generated certs with our own.
+dovecot_ssl_key: ""
+dovecot_ssl_cert: ""
+dovecot_ssl_ca: ""
+dovecot_ssl_require_crl: false
+
+dovecot_ssl_cert_file: "{{ ansible_hostname }}.pem"
+dovecot_ssl_key_file: "{{ ansible_hostname }}.key"
+
+# LDAP - allow IMAP users to be authenticated against LDAP
+# TODO if need IMAP accounts to auth against LDAP
+# Currently using system accounts
+# dovecot_ldap: false
+# dovecot_ldap_uris: ""
+# dovecot_ldap_bind_dn: ""
+# dovecot_ldap_bind_user: ""
+
+# Package
+dovecot_packages:
+ - dovecot-core
+ - dovecot-imapd
+
+dovecot_packages_ldap:
+ - dovecot-ldap
+
+dovecot_service_name: dovecot
