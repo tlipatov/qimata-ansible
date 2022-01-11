@@ -11,6 +11,7 @@ openldap_bases:
     admin_user_password: f00b@r
     users: "{{qimata_com_users}} + {{global_users}}"
     units: "{{organizational_units}}"
+    entries: "{{qimata_com_ldap_entry}}"
     syncrepl: true
   - database: "2"
     org: "qimata"
@@ -41,6 +42,17 @@ global_users:
       sn: Li
       uid: 10100
       cn: Taras Li
+
+qimata_com_ldap_entry:
+  - dn: "cn=mail,ou=users,dc=qimata,dc=com"
+    password: q1w2e3r4
+    objectClass:
+      - simpleSecurityObject
+      - organizationalRole
+      - top
+    attributes: 
+      description: MAIL reader
+      userPassword: "{SSHA}wdFCQM7CGiivCymSBlSiQcbwR54IV26j"
 
 qimata_com_users:
   - FirstName: John
