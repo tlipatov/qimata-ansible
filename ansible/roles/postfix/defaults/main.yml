@@ -1,0 +1,46 @@
+---
+
+# Network config
+postfix_domain: localhost
+postfix_mailname: "{{ ansible_hostname }}.{{ postfix_domain }}"
+postfix_destinations: "$myhostname, {{ postfix_mailname }}, localhost.{{ postfix_domain }}, localhost"
+postfix_root_address: "root@{{ postfix_domain }}"
+postfix_main_mailer_type: "Internet Site"
+postfix_inet_protocols: "ipv4" # all, ipv4, ipv6
+postfix_inet_interfaces: "all"
+postfix_mynetworks: "127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128"
+postfix_relayhost: ""
+postfix_proxy_interfaces: ""
+
+# Mail config
+postfix_mailbox_limit: 0
+postfix_recipient_delim: "+"
+postfix_chattr: false
+postfix_smtpd_banner: "$myhostname ESMTP $mail_name (Debian/GNU)"
+postfix_myorigin: "/etc/mailname"
+postfix_home_mailbox: ""
+
+# SMTP-Auth settings
+postfix_smtpd_sasl_auth_enable: "no"
+postfix_smtpd_sasl_type: "cyrus"
+postfix_smtpd_sasl_path: "private/auth"
+postfix_smtpd_sasl_security_options: "noanonymous"
+postfix_smtpd_sasl_local_domain: "$myhostname"
+postfix_smtpd_recipient_restrictions: "permit_mynetworks,permit_auth_destination,permit_sasl_authenticated,reject"
+
+# TLS Config
+postfix_smtpd_use_tls: "yes"
+postfix_smtp_tls_key: ""
+postfix_smtp_tls_cert: ""
+# postfix_ca_crt: false
+
+# Paths
+postfix_base_dir: /etc/postfix
+postfix_conf_file: "{{ postfix_base_dir }}/main.cf"
+
+# Package
+postfix_packages:
+  - postfix
+  # - postfix-ldap
+
+postfix_service_name: postfix

@@ -1,0 +1,7 @@
+---
+
+- name: restart postfix-server
+  service:
+    name: "{{ postfix_service_name }}"
+    state: restarted
+  become: true

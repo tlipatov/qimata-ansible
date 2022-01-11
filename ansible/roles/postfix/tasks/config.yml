@@ -1,0 +1,37 @@
+---
+
+- name: Configuration file
+  lineinfile:
+    path: "{{ postfix_conf_file }}"
+    regexp: "^#?{{ item.line.split('=')[0] }}="
+    line: "{{ item.line }}"
+    firstmatch: "{{ item.firstmatch | default(false) }}"
+  with_items:
+    - line: "smtpd_banner = {{ postfix_smtpd_banner }}"
+    - line: "inet_interfaces = {{ postfix_inet_interfaces }}"
+    - line: "alias_maps = hash:/etc/aliases"
+    - line: "alias_database = hash:/etc/aliases"
+    - line: "myorigin = {{ postfix_myorigin }}"
+    - line: "smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem"
+    - line: "smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key"
+    - line: "smtpd_use_tls={{ postfix_smtpd_use_tls }}"
+    - line: "smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache"
+    - line: "smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache"
+    - line: "home_mailbox = {{ postfix_home_mailbox }}"
+
+    # Poxy NAT
+    - line: "proxy_interfaces = {{ postfix_proxy_interfaces }}"
+
+    # SMTP-Auth settings
+    - line: "smtpd_sasl_type = {{ postfix_smtpd_sasl_type }}"
+    - line: "smtpd_sasl_path = {{ postfix_smtpd_sasl_path }}"
+    - line: "smtpd_sasl_auth_enable = {{ postfix_smtpd_sasl_auth_enable }}"
+    - line: "smtpd_sasl_security_options = {{ postfix_smtpd_sasl_security_options }}"
+    - line: "smtpd_sasl_local_domain = {{ postfix_smtpd_sasl_local_domain }}"
+    - line: "smtpd_recipient_restrictions = {{ postfix_smtpd_recipient_restrictions }}"
+
+    # Hardening
+    - line: "disable_vrfy_command = yes"
+    - line: "relayhost = {{ postfix_relayhost }}"
+
+  notify: restart postfix-server
