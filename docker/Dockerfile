@@ -12,5 +12,6 @@ RUN useradd -d /home/ansible -U -m -s /bin/bash ansible; mkdir /ansible; chown a
 USER ansible
 
 RUN ansible-galaxy collection install community.general
+RUN ansible-galaxy collection install community.postgresql
 
 WORKDIR /ansible

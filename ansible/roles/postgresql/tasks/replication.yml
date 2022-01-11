@@ -1,0 +1,15 @@
+---
+
+- name: "Add replication user"
+  become: true
+  become_user: "{{postgresql_user}}"
+  community.postgresql.postgresql_user:
+    name: "{{postgresql_replication_user_name}}"
+    password: "{{postgresql_replication_user_password}}"
+    comment: "Replication user"
+    login_unix_socket: "{{postgresql_unix_socket_directory}}"
+    port: "{{postgresql_port}}"
+    role_attr_flags: "{{postgresql_admin_user_attr_flags}}"
+    state: "{{postgresql_admin_user_state}}"
+  tags: replication
+  when: postgresql_replication_enabled and postgresql_replication_role == "main"

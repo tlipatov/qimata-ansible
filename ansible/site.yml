@@ -4,6 +4,10 @@
   gather_timeout: 120
 
   roles:
+  # Setup what we need to run ansible on host
+  - role: ansible
+    tags:
+      ansible
   # All hosts get the UFW role
   - role: ufw
     tags:
@@ -28,3 +32,67 @@
   - role: openvpn
     tags:
     - openvpn
+
+- hosts: mail
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  roles:
+  - role: postfix
+    tags:
+    - postfix
+  - role: dovecot
+    tags:
+    - dovecot
+  - role: roundcube
+    tags:
+    - roundcube
+
+- hosts: psql_pgpool
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  roles:
+  - role: pgpool
+    tags:
+    - pgpool
+
+- hosts: psql_01
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  vars:
+    postgresql_replication_role: main
+  
+  roles:
+  - role: postgresql
+    tags:
+    - postgresql
+    - postgresql_main
+
+- hosts: psql_02
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  vars:
+    postgresql_replication_role: replica
+
+  roles:
+  - role: postgresql
+    tags:
+    - postgresql
+    - postgresql_replica
+
+- hosts: psql_whitness
+  become: yes
+  gather_facts: yes
+  gather_timeout: 120
+
+  roles:
+  - role: postgresql
+    tags:
+    - postgresql

@@ -4,7 +4,8 @@ dev:
   children:
     ldap:
     openvpn:
-    smtp:
+    mail:
+    postgresql:
 
 ldap:
   children:
@@ -23,6 +24,29 @@ openvpn:
   hosts:
     openvpn-01.dev.qimata
 
-smtp:
+mail:
   hosts:
     smtp-01.dev.qimata
+
+postgresql:
+  children:
+    psql_pgpool:
+    psql_01:
+    psql_02:
+    psql_whitness:
+
+psql_01:
+  hosts:
+    db-01.dev.qimata
+
+psql_02:
+  hosts:
+    db-02.dev.qimata
+
+psql_pgpool:
+  hosts:
+    db-03.dev.qimata
+
+psql_whitness:
+  hosts:
+    db-04.dev.qimata

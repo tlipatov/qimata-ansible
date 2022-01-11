@@ -1,0 +1,47 @@
+---
+
+- name: "Create certs dir"
+  file:
+    path: "{{item}}"
+    owner: "{{postgresql_user}}"
+    group: "{{postgresql_group}}"
+    mode: 0700 
+    state: directory
+  with_items:
+    - "{{postgresql_ssl_dir}}"
+  when: (postgresql_ssl_ca_file_content != "") or
+        (postgresql_ssl_cert_file_content != "") or
+        (postgresql_ssl_crl_file_content != "") or
+        (postgresql_ssl_key_file_content != "") or
+        (postgresql_ssl_dh_params_file != "")
+  tags: ssl
+
+- name: Create ROOT CA crt
+  copy:
+    content: "{{ postgresql_ssl_ca_file_content | b64decode }}"
+    dest: "{{postgresql_ssl_ca_file}}"
+    owner: "{{postgresql_user}}"
+    group: "{{postgresql_group}}"
+    mode: 0400 
+  when: postgresql_ssl_ca_file_content != ""
+  tags: ssl
+
+- name: Create cert
+  copy:
+    content: "{{ postgresql_ssl_cert_file_content | b64decode }}"
+    dest: "{{postgresql_ssl_cert_file}}"
+    owner: "{{postgresql_user}}"
+    group: "{{postgresql_group}}"
+    mode: 0400 
+  when: postgresql_ssl_cert_file_content != ""
+  tags: ssl
+
+- name: Create cert key
+  copy:
+    content: "{{ postgresql_ssl_key_file_content | b64decode }}"
+    dest: "{{postgresql_ssl_key_file}}"
+    owner: "{{postgresql_user}}"
+    group: "{{postgresql_group}}"
+    mode: 0400 
+  when: postgresql_ssl_key_file_content != ""
+  tags: ssl

@@ -1,0 +1,15 @@
+---
+
+ufw_allow_ports:
+  - "5433"
+
+postgresql_listen_addresses: "*"
+postgresql_ssl_ca_file_content: "{{global_ca_cert}}"
+postgresql_ssl_cert_file_content: "{{postgresql_ssl_cert}}"
+postgresql_ssl_key_file_content: "{{postresql_ssl_key}}"
+
+postgresql_admin_user_listen_address: "0.0.0.0/0"
+
+postgresql_replication_enabled: true
+postgresql_replication_replica_addresses:
+  - 0.0.0.0/0
