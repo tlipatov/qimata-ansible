@@ -1,0 +1,6 @@
+---
+
+- include: package.yml
+- include: ssl.yml
+- include: config.yml
+- include: replication.yml

@@ -1,0 +1,60 @@
+---
+# CONNECTIONS AND AUTHENTICATION
+postgresql_listen_addresses: "localhost"
+postgresql_port: 5433
+postgresql_max_connections: 100
+postgresql_superuser_reserved_connections: 3
+postgresql_unix_socket_directory: "/var/run/postgresql"
+
+# SSL
+postgresql_ssl: "on"
+postgresql_ssl_dir: "/etc/postgresql/certs"
+postgresql_ssl_ca_file: "{{postgresql_ssl_dir}}/ca.crt"
+postgresql_ssl_ca_file_content: ""
+postgresql_ssl_cert_file: "{{postgresql_ssl_dir}}/ssl-cert.pem"
+postgresql_ssl_cert_file_content: ""
+postgresql_ssl_crl_file: ""
+postgresql_ssl_crl_file_content: ""
+postgresql_ssl_key_file: "{{postgresql_ssl_dir}}/ssl-cert.key"
+postgresql_ssl_key_file_content: ""
+postgresql_ssl_dh_params_file: ""
+postgresql_ssl_dh_params_file_content: ""
+
+# BACKUP
+postgresql_backup: false
+
+# FILE LOCATIONS
+postgresql_data_directory: "/var/lib/postgresql/11/main"
+postgresql_hba_file: "/etc/postgresql/11/main/pg_hba.conf"
+postgresql_ident_file: "/etc/postgresql/11/main/pg_ident.conf"
+postgresql_config_file: "/etc/postgresql/11/main/postgresql.conf"
+
+# REPLICATION
+postgresql_replication_enabled: false
+postgresql_replication_role: ""
+postgresql_replication_user_name: "replication"
+postgresql_replication_user_password: "q1w2e3r4"
+postgresql_replication_user_attr_flags: "REPLICATION,LOGIN"
+postgresql_replication_replica_addresses: []
+
+postgresql_max_wal_senders: 10
+postgresql_wal_keep_segments: 64
+
+# ADMIN USER
+postgresql_admin_user_state: present
+postgresql_admin_user_name: admin
+postgresql_admin_user_password: "q1w2e3r4"
+postgresql_admin_user_attr_flags: "CREATEDB,CREATEROLE,SUPERUSER"
+postgresql_admin_user_listen_addresse: "localhost"
+
+# postgresql_default_version: 11
+postgresql_user: postgres
+postgresql_group: postgres
+
+# Package
+postgresql_packages:
+  - postgresql-11
+  - python-pygresql
+  - python-psycopg2
+
+postgresql_service_name: postgresql
