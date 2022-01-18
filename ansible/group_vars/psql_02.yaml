@@ -1,0 +1,4 @@
+---
+
+postgresql_replication_role: standby
+postgresql_replication_node_id: 2

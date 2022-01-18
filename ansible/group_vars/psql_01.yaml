@@ -1,0 +1,4 @@
+---
+
+postgresql_replication_role: primary
+postgresql_replication_node_id: 1
