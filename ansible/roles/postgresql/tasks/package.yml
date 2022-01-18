@@ -9,3 +9,11 @@
   register: result
   until: result is successful
   tags: package
+
+# Start the server
+- name: Start postgresql service
+  service:
+    name: postgresql
+    enabled: true
+    state: started
+  tags: package

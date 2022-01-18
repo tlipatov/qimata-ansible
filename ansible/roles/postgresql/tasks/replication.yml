@@ -7,7 +7,7 @@
   become: true
   register: result
   until: result is successful
-  tags: package
+  tags: package, replication
 
 - name: "Add replication user"
   become: true
@@ -34,3 +34,49 @@
     state: "present"
   tags: replication
   when: postgresql_replication_role == "primary"
+
+- name: "Create repmgr conf dir"
+  file:
+    path: "{{item}}"
+    owner: "{{postgresql_user}}"
+    group: "{{postgresql_group}}"
+    mode: 0755 
+    state: directory
+  with_items:
+    - "{{postgresql_replication_repmgr_conf_dir}}"
+  tags: replication
+
+- name: "Config repmgr.conf"
+  template:
+    src: "repmgr.conf.j2"
+    dest: "{{postgresql_replication_repmgr_conf_dir}}/repmgr.conf"
+    owner: "{{postgresql_user}}"
+    group: "{{postgresql_group}}"
+    mode: 0644
+  tags: replication
+
+- name: "Repmgr Test Register primary"
+  become: false
+  shell: "repmgr -f {{postgresql_replication_repmgr_conf_dir}}/repmgr.conf primary register --dry-run"
+  register: test_register_primary
+  changed_when: false
+  no_log: true
+  when: postgresql_replication_role == "primary"
+  tags: replication
+
+- name: "Repmgr Register primary"
+  become: false
+  shell: "repmgr -f {{postgresql_replication_repmgr_conf_dir}}/repmgr.conf primary register"
+  register: register_primary
+  when: (postgresql_replication_role == "primary") and 
+        ('attempt' in test_register_primary['stderr_lines'][1].split(' '))
+  tags: replication
+
+
+
+# - debug:
+#     msg: "{{test_register_primary['stderr_lines'][1].split(' ')}}"
+#   when: "'install' in test_register_primary['stderr_lines'][1].split(' ')"
+#   tags: replication
+
+# Purge initialized DB data on replicas 

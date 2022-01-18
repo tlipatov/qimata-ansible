@@ -30,13 +30,18 @@ postgresql_ident_file: "/etc/postgresql/11/main/pg_ident.conf"
 postgresql_config_file: "/etc/postgresql/11/main/postgresql.conf"
 
 # REPLICATION
+## NOTE: replication user name cannot be 'replication'
 postgresql_replication_enabled: false
 postgresql_replication_role: ""
-postgresql_replication_user_name: "replication"
+postgresql_replication_node_id: 0
+postgresql_replication_node_name: "{{ ansible_hostname }}"
+postgresql_replication_user_name: "repmgr"
 postgresql_replication_user_password: "q1w2e3r4"
 postgresql_replication_user_attr_flags: "SUPERUSER"
-postgresql_replication_db_name: "replication"
+postgresql_replication_db_name: "repmgr"
+postgresql_replication_auth_method: "trust" # Authentication: peer, md5, trust
 postgresql_replication_replica_addresses: []
+postgresql_replication_repmgr_conf_dir: "/etc/repmgr"
 
 # postgresql_repmgr_enabled: false
 postgresql_repmgr_packages:

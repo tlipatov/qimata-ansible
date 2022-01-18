@@ -8,7 +8,15 @@
     group: "{{postgresql_group}}"
     mode: 0644
   become: true
-  notify: restart postgresql
+  # notify: restart postgresql
+  register: config_postgresql_conf_result
+  tags: config
+
+- name: "Config postgresql.conf"
+  service:
+    name: postgresql
+    state: restarted
+  when: config_postgresql_conf_result.changed
   tags: config
 
 - name: "Config pg_hba.conf"
@@ -19,7 +27,16 @@
     group: "{{postgresql_group}}"
     mode: 0644
   become: true
-  notify: restart postgresql
+  # notify: restart postgresql
+  register: config_pg_hba_conf_result
+  tags: config
+
+
+- name: "Config pg_hba.conf"
+  service:
+    name: postgresql
+    state: restarted
+  when: config_pg_hba_conf_result.changed
   tags: config
 
 - name: "Add admin user"

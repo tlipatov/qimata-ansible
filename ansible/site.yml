@@ -64,9 +64,6 @@
   gather_facts: yes
   gather_timeout: 120
 
-  vars:
-    postgresql_replication_role: primary
-  
   roles:
   - role: postgresql
     tags:
@@ -77,9 +74,6 @@
   become: yes
   gather_facts: yes
   gather_timeout: 120
-
-  vars:
-    postgresql_replication_role: standby
 
   roles:
   - role: postgresql

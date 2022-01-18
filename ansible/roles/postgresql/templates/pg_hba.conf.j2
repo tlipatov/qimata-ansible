@@ -88,25 +88,26 @@ local   all             postgres                                peer
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 
 # "local" is for Unix domain socket connections only
-local   all             all                                     peer
+#local   all             all                                     peer
 # IPv4 local connections:
 host    all             all             127.0.0.1/32            md5
 # IPv6 local connections:
-host    all             all             ::1/128                 md5
+#host    all             all             ::1/128                 md5
 # Allow replication connections from localhost, by a user with the
 # replication privilege.
-local   replication     all                                     peer
+#local   replication     all                                     peer
 #host    replication     all             127.0.0.1/32            md5
 #host    replication     all             ::1/128                 md5
 
 {% if postgresql_admin_user_state == "present" %}
 # Admin users
-host   all              {{postgresql_admin_user_name}}         {{postgresql_admin_user_listen_address}} md5
+host   all {{postgresql_admin_user_name}}  {{postgresql_admin_user_listen_address}} md5
 {% endif %} 
 
-{% if postgresql_replication_enabled and postgresql_replication_role == "main" %}
+{% if postgresql_replication_enabled and postgresql_replication_role == "primary" %}
+#host    {{ postgresql_replication_db_name }} {{postgresql_replication_user_name}} 127.0.0.1/32 trust
 {% for address in postgresql_replication_replica_addresses %}
 # Remote replication users
-host    replication {{postgresql_replication_user_name}}             {{address}}            md5
+host    {{ postgresql_replication_db_name }} {{postgresql_replication_user_name}} {{address}} {{postgresql_replication_auth_method}}
 {% endfor %}
 {% endif %}
