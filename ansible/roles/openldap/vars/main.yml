@@ -1,1 +1,6 @@
 ---
+
+# DB Engine: MDB
+openldap_db_engine: "MDB"
+
+openldap_module_path: "/usr/lib/ldap"

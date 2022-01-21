@@ -87,20 +87,12 @@
     state: exact
   when: openldap_db_engine == "MDB"
 
-- name: "Base: Configure HDB dc={{item.org}},dc={{item.tld}}"
-  community.general.ldap_attrs:
-    dn: "{{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}"
-    attributes:
-      olcSuffix: "dc={{item.org}},dc={{item.tld}}"
-      olcRootDN: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
-      olcDbConfig: 
-        - >-
-          {0}set_cachesize 0 2097152 0
-          {1}set_lk_max_objects 1500
-          {2}set_lk_max_locks 1500
-          {3}set_lk_max_lockers 1500
-    state: exact
-  when: openldap_db_engine == "MDB"
+- name: restart slapd
+  become: true
+  service:
+    name: slapd
+    state: restarted
+  when: db_directory.changed
 
 # We set the new password hash every run because we have no easy way to verify the bind password
 # We can try to connect using the bind password and generate hash if connection fails
@@ -121,13 +113,14 @@
     dn: "dc={{item.org}},dc={{item.tld}}"
     objectClass: 
       - dcObject
-      - organization
+      - domain
       - top
     attributes:
       o: "{{item.org}}"
       dc: "{{item.org}}"
     state: present
 
+## Create admin user
 - name: "Base: hash admin password dc={{item.org}},dc={{item.tld}}"
   shell: "slappasswd -s {{item.admin_user_password}}"
   ignore_errors: true
@@ -136,7 +129,6 @@
   register: admin_slappasswd    
   when: item.create_admin | default(true)
 
-## Create admin user
 - name: "Base: Make sure we have an admin user dc={{item.org}},dc={{item.tld}}"
   community.general.ldap_entry:
     bind_dn: "cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"

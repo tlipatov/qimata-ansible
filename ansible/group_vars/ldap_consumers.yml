@@ -1,3 +1,4 @@
 ---
-openldap_syncrepl_consumer: true
 
+openldap_syncrepl_provider_host: ldap-01.dev.qimata
+openldap_syncrepl_id: 2
