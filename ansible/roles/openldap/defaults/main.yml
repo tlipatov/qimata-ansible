@@ -39,8 +39,9 @@ openldap_packages:
 # Sync
 openldap_syncrepl: false
 openldap_syncrepl_id: false
-# openldap_syncrepl_provider: false
-# openldap_syncrepl_consumer: false
+openldap_syncrepl_producer_host: false
+openldap_syncrepl_producer: false
+openldap_syncrepl_consumer: false
 
 # Enable TLS
 openldap_tls: false
