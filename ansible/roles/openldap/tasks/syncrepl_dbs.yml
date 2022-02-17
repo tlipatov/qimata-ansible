@@ -1,0 +1,55 @@
+---
+
+- name: "Enable syncprov overlay dc={{item.org}},dc={{item.tld}} ldiff"
+  copy:
+    dest: "{{'/etc/ldap/ldif-templates/syncprovOverlay={'+item.database+'}.ldif'}}"
+    content: |
+      dn: {{'olcOverlay=syncprov,olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}
+      objectClass: olcOverlayConfig
+      objectClass: olcSyncProvConfig
+      olcOverlay: syncprov
+      olcSpSessionLog: 100
+  register: syncprov_overlay
+  when: item.syncrepl|default('false')
+  tags: openldap, syncprov
+
+- name: "Enable syncprov overlay dc={{item.org}},dc={{item.tld}} apply"
+  shell: "ldapadd -Y EXTERNAL -H ldapi:/// -f {{'/etc/ldap/ldif-templates/syncprovOverlay={'+item.database+'}.ldif'}}"
+  ignore_errors: true
+  # changed_when: false
+  # no_log: false
+  register: syncprov_ldapadd 
+  when: syncprov_overlay.changed
+
+- name: "Enable DB replication dc={{item.org}},dc={{item.tld}} ldiff"
+  copy:
+    dest: "{{'/etc/ldap/ldif-templates/replication_config={'+item.database+'}.ldif'}}"
+    content: |
+      dn: {{'olcDatabase={'+item.database+'}'+openldap_db_engine | lower+',cn=config'}}
+      changetype: modify
+      add: olcSyncRepl
+      olcSyncRepl: rid=00{{openldap_syncrepl_id}}
+        provider=ldaps://{{openldap_syncrepl_provider_host}}:636/
+        bindmethod=simple
+        binddn="cn={{item.bind_user}},dc={{item.org}},dc={{item.tld}}"
+        credentials={{item.bind_password}}
+        searchbase="dc={{item.org}},dc={{item.tld}}"
+        scope=sub
+        schemachecking=on
+        type=refreshAndPersist
+        retry="30 5 300 3"
+        interval=00:00:05:00
+      -
+      add: olcMirrorMode
+      olcMirrorMode: TRUE
+  register: replication_config
+  when: item.syncrepl|default('false')
+  tags: openldap, syncprov
+
+- name: "Enable DB replication dc={{item.org}},dc={{item.tld}} apply"
+  shell: "ldapmodify -Y EXTERNAL -H ldapi:/// -f {{'/etc/ldap/ldif-templates/replication_config={'+item.database+'}.ldif'}}"
+  ignore_errors: true
+  # changed_when: false
+  # no_log: false
+  register: replication_config_ldapadd
+  when: replication_config.changed

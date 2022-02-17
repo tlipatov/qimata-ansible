@@ -94,7 +94,7 @@ ufw_allow_ports:
   - "389"
 
 # Sync config
-openldap_syncrepl_provider_host: ldap-01.dev.qimata
+openldap_syncrepl: true
 
 # TLS certificates
 openldap_tls: true

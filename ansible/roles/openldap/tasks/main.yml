@@ -13,16 +13,12 @@
 - include_tasks: bases.yml
   loop: "{{openldap_bases}}"
 
-- include_tasks: syncrepl_provider.yml
-  when: openldap_syncrepl_provider|bool
+- include_tasks: syncrepl.yml
+  when: openldap_syncrepl|bool
 
-- include_tasks: syncrepl_provider_dbs.yml
+- include_tasks: syncrepl_dbs.yml
   loop: "{{openldap_bases}}"
-  when: openldap_syncrepl_provider|bool
-
-- include_tasks: syncrepl_consumer.yml
-  loop: "{{openldap_bases}}"
-  when: openldap_syncrepl_consumer|bool
+  when: openldap_syncrepl|bool
 
 - include_tasks: org_units.yml
   loop: "{{openldap_bases}}"

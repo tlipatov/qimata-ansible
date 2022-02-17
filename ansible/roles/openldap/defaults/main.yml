@@ -29,18 +29,18 @@ openldap_config: true
 
 # Debain packages
 openldap_ansible_runtime_packages:
-  - python-apt
-  - python-ldap
+  - python3-apt
+  - python3-ldap
 openldap_packages:
   - slapd
   - ldap-utils
   - schema2ldif
 
-# DB Engine: MDB | HDB  Use HDB if you need syncrepl
-openldap_db_engine: HDB
-
 # Sync
-openldap_syncrepl_provider: false
+openldap_syncrepl: false
+openldap_syncrepl_id: false
+openldap_syncrepl_producer_host: false
+openldap_syncrepl_producer: false
 openldap_syncrepl_consumer: false
 
 # Enable TLS

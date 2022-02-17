@@ -1,17 +1,7 @@
 dn: olcDatabase={{ '{' }}{{item.database}}{{ '}' }}{{openldap_db_engine | lower}}
 objectClass: olcDatabaseConfig
-{% if openldap_db_engine == "MDB" %}
 objectClass: olcMdbConfig
-{% endif %}
-{% if openldap_db_engine == "HDB" %}
-objectClass: olcHdbConfig
-{% endif %}
 olcDatabase: {{ '{' }}{{item.database}}{{ '}' }}{{openldap_db_engine | lower}}
 olcDbDirectory: /var/lib/ldap/{{item.org}}.{{item.tld}}
 olcSuffix: dc={{item.org}},dc={{item.tld}}
-{% if openldap_db_engine == "MDB" %}
 structuralObjectClass: olcMdbConfig
-{% endif %}
-{% if openldap_db_engine == "HDB" %}
-structuralObjectClass: olcHdbConfig
-{% endif %}

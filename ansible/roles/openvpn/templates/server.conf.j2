@@ -110,7 +110,7 @@ plugin /usr/lib/openvpn/openvpn-auth-ldap.so "{{ openvpn_base_dir }}/auth/ldap.c
 {% if ldap.verify_client_cert is defined %}
 verify-client-cert {{ ldap.verify_client_cert }}
 {% else %}
-client-cert-not-required
+verify-client-cert none
 {% endif %}
 {% endif %}
 

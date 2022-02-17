@@ -1,0 +1,22 @@
+---
+
+# enable sync module
+- name: "Enable syncprov"
+  community.general.ldap_attrs:
+    dn: "cn=module{0},cn=config"
+    attributes:
+      objectClass: "olcModuleList"
+      olcModuleLoad: "{1}syncprov.la"
+    state: present
+  register: syncprov_la
+  tags: openldap, syncprov
+
+# set sync server id
+- name: "Enable syncprov oclserverid"
+  community.general.ldap_attrs:
+    dn: "cn=config"
+    attributes:
+      olcServerID: "{{openldap_syncrepl_id}}"
+    state: exact
+  register: syncprov_erverid
+  tags: openldap, syncprov

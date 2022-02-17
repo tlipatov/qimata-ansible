@@ -22,3 +22,10 @@
   notify: restart slapd
   tags: openldap, config
 
+- name: "Enable logging"
+  community.general.ldap_attrs:
+    dn: cn=config
+    attributes:
+      olcLogLevel: "stats"
+    state: exact
+  tags: openldap, config, logs
