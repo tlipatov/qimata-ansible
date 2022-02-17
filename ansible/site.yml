@@ -68,7 +68,6 @@
   - role: postgresql
     tags:
     - postgresql
-    - postgresql_main
 
 - hosts: psql_02
   become: yes
@@ -79,7 +78,6 @@
   - role: postgresql
     tags:
     - postgresql
-    - postgresql_replica
 
 - hosts: psql_whitness
   become: yes
@@ -89,4 +87,5 @@
   roles:
   - role: postgresql
     tags:
-    - postgresql
+    # - postgresql
+    - postgresql_whitness

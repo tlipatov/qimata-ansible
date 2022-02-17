@@ -24,10 +24,10 @@ postgresql_ssl_dh_params_file_content: ""
 postgresql_backup: false
 
 # FILE LOCATIONS
-postgresql_data_directory: "/var/lib/postgresql/11/main"
-postgresql_hba_file: "/etc/postgresql/11/main/pg_hba.conf"
-postgresql_ident_file: "/etc/postgresql/11/main/pg_ident.conf"
-postgresql_config_file: "/etc/postgresql/11/main/postgresql.conf"
+postgresql_data_directory: "/var/lib/postgresql/13/main"
+postgresql_hba_file: "/etc/postgresql/13/main/pg_hba.conf"
+postgresql_ident_file: "/etc/postgresql/13/main/pg_ident.conf"
+postgresql_config_file: "/etc/postgresql/13/main/postgresql.conf"
 
 # REPLICATION
 ## NOTE: replication user name cannot be 'replication'
@@ -45,7 +45,7 @@ postgresql_replication_repmgr_conf_dir: "/etc/repmgr"
 
 # postgresql_repmgr_enabled: false
 postgresql_repmgr_packages:
-  - postgresql-11-repmgr
+  - postgresql-13-repmgr
 
 postgresql_max_wal_senders: 10
 postgresql_max_replication_slots: 10
@@ -58,15 +58,15 @@ postgresql_admin_user_password: "q1w2e3r4"
 postgresql_admin_user_attr_flags: "CREATEDB,CREATEROLE,SUPERUSER"
 postgresql_admin_user_listen_addresse: "localhost"
 
-# postgresql_default_version: 11
+# postgresql_default_version: 13
 postgresql_user: postgres
 postgresql_group: postgres
 
 # Package
 postgresql_packages:
-  - postgresql-11
-  - python-pygresql
-  - python-psycopg2
+  - postgresql-13
+  - python3-pygresql
+  - python3-psycopg2
 
 postgresql_service_name: postgresql
 
