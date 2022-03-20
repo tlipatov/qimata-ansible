@@ -13,79 +13,105 @@
     tags:
     - ufw
 
-- hosts: ldap
+# Setting global variables for the gluster roles to use
+- hosts: gluster_cluster
+  tasks:
+  - set_fact:
+      gluster_ips: []
+
+- hosts: gluster_cluster
+  tasks:
+  - set_fact:
+      gluster_ips: "{{ gluster_ips + [ hostvars[item]['ansible_env'].SSH_CONNECTION.split(' ')[2] ] }}"
+    with_items: "{{ groups['gluster_cluster'] }}"
+
+- hosts: gluster_cluster
+  tasks:
+  - set_fact:
+      gluster_nodes: "{{ groups['gluster_cluster'] }}"
+# Variables for gluster_cluster set in the above three plays
+
+- hosts: gluster_cluster
   become: yes
   gather_facts: yes
   gather_timeout: 120
 
   roles:
-  - role: openldap
-    tags:
-    - openldap
+  - role: gluster
 
-- hosts: openvpn
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: ldap
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: openvpn
-    tags:
-    - openvpn
+#   roles:
+#   - role: openldap
+#     tags:
+#     - openldap
 
-- hosts: mail
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: openvpn
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: postfix
-    tags:
-    - postfix
-  - role: dovecot
-    tags:
-    - dovecot
-  - role: roundcube
-    tags:
-    - roundcube
+#   roles:
+#   - role: openvpn
+#     tags:
+#     - openvpn
 
-- hosts: psql_pgpool
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: mail
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: pgpool
-    tags:
-    - pgpool
+#   roles:
+#   - role: postfix
+#     tags:
+#     - postfix
+#   - role: dovecot
+#     tags:
+#     - dovecot
+#   - role: roundcube
+#     tags:
+#     - roundcube
 
-- hosts: psql_01
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: psql_pgpool
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: postgresql
-    tags:
-    - postgresql
+#   roles:
+#   - role: pgpool
+#     tags:
+#     - pgpool
 
-- hosts: psql_02
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: psql_01
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: postgresql
-    tags:
-    - postgresql
+#   roles:
+#   - role: postgresql
+#     tags:
+#     - postgresql
 
-- hosts: psql_whitness
-  become: yes
-  gather_facts: yes
-  gather_timeout: 120
+# - hosts: psql_02
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
 
-  roles:
-  - role: postgresql
-    tags:
-    # - postgresql
-    - postgresql_whitness
+#   roles:
+#   - role: postgresql
+#     tags:
+#     - postgresql
+
+# - hosts: psql_whitness
+#   become: yes
+#   gather_facts: yes
+#   gather_timeout: 120
+
+#   roles:
+#   - role: postgresql
+#     tags:
+#     # - postgresql
+#     - postgresql_whitness

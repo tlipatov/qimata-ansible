@@ -1,0 +1,7 @@
+- community.general.ufw:
+    rule: allow
+    src: "{{ item }}"
+  with_items: "{{ gluster_ips }}"
+
+- community.general.ufw:
+    state: enabled

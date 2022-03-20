@@ -13,5 +13,6 @@ USER ansible
 
 RUN ansible-galaxy collection install community.general
 RUN ansible-galaxy collection install community.postgresql
+RUN ansible-galaxy collection install gluster.gluster
 
 WORKDIR /ansible

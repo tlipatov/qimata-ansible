@@ -1,0 +1,35 @@
+- ansible.builtin.apt_key:
+    url: https://download.gluster.org/pub/gluster/glusterfs/9/rsa.pub
+    state: present
+
+- ansible.builtin.apt_repository:
+    repo: deb https://download.gluster.org/pub/gluster/glusterfs/LATEST/Debian/11/amd64/apt bullseye main
+    state: present
+
+- ansible.builtin.apt:
+    update_cache: yes
+
+- ansible.builtin.package:
+    name: glusterfs-server
+    state: present
+
+- ansible.builtin.service:
+    name: glusterd
+    enabled: true
+    state: started
+
+- name: Create a trusted storage pool
+  gluster.gluster.gluster_peer:
+    state: present
+    nodes: "{{ groups['gluster_cluster'] }}"
+  run_once: true
+
+- name: Create Volume
+  gluster.gluster.gluster_volume:
+    state: present
+    name: "{{ volume_name }}"
+    bricks: "{{ brick_dir }}"
+    cluster: "{{ groups['gluster_cluster'] }}"
+    force: true
+    replicas: 3
+  run_once: true
