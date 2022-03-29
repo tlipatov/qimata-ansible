@@ -14,21 +14,19 @@
     - ufw
 
 # Setting global variables for the gluster roles to use
-- hosts: gluster_cluster
+
+
+- name: Set gluster_cluster variables
+  hosts: gluster_cluster
   tasks:
   - set_fact:
       gluster_ips: []
-
-- hosts: gluster_cluster
-  tasks:
   - set_fact:
       gluster_ips: "{{ gluster_ips + [ hostvars[item]['ansible_env'].SSH_CONNECTION.split(' ')[2] ] }}"
     with_items: "{{ groups['gluster_cluster'] }}"
-
-- hosts: gluster_cluster
-  tasks:
   - set_fact:
       gluster_nodes: "{{ groups['gluster_cluster'] }}"
+
 # Variables for gluster_cluster set in the above three plays
 
 - hosts: gluster_cluster
